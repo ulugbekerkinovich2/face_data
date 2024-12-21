@@ -144,7 +144,7 @@ def handle_stranger_capture(request):
                 operator=data["operator"],
             )
             stranger_capture.image_file.save(image_filename, ContentFile(decoded_image), save=True)
-
+            
             return JsonResponse({
                 "status": "success",
                 "message": "StrangerCapture saved successfully",

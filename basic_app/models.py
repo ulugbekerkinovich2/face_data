@@ -74,7 +74,7 @@ class StrangerCapture(models.Model):
     picture_type = models.IntegerField()
     send_in_time = models.IntegerField()
     operator = models.CharField(max_length=50)
-
+    
     def __str__(self):
         return f"StrangerCapture from Device {self.device_id} at {self.create_time}"
     class Meta:
