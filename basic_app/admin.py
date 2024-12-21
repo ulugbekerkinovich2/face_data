@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 
 @admin.register(Heartbeat)
@@ -21,11 +22,31 @@ class ICCardInfoPushAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'ic_card_num', 'created_at')
     search_fields = ('device_id', 'ic_card_num')
 
+# @admin.register(StrangerCapture)
+# class StrangerCaptureAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'device_id', 'create_time', 'direction', 
+#         'picture_type', 'operator'
+#     )
+#     search_fields = ('device_id', 'operator')
+#     list_filter = ('create_time', 'direction', 'picture_type')
+
+
 @admin.register(StrangerCapture)
 class StrangerCaptureAdmin(admin.ModelAdmin):
     list_display = (
         'device_id', 'create_time', 'direction', 
-        'picture_type', 'operator'
+        'picture_type', 'operator', 'thumbnail'
     )
     search_fields = ('device_id', 'operator')
     list_filter = ('create_time', 'direction', 'picture_type')
+
+    def thumbnail(self, obj):
+        if obj.image_file:
+            return format_html(
+                '<img src="{}" style="height: 50px; width: auto; border-radius: 5px;" />',
+                obj.image_file.url
+            )
+        return "No Image"
+
+    thumbnail.short_description = "Image Preview"
