@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-^fkv0x+kc+++d3gm2o4u-6l3au9_*-jjhv&+(3$6q^&8gmt-5)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -120,19 +120,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+# ]
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Statik va Media URL
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = []
 # Statik va Media Fayllar Katalogi
-STATIC_ROOT = '/var/www/workers/face_data/static/'
-MEDIA_ROOT = '/var/www/workers/face_data/media/'
+# STATIC_ROOT = '/var/www/workers/face_data/static/'
+# MEDIA_ROOT = '/var/www/workers/face_data/media/'
 
 # Collectstatic natijasida yaratilgan fayllar manifestini boshqarish uchun
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
