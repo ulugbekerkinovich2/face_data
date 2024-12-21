@@ -11,10 +11,10 @@ class HeartbeatAdmin(admin.ModelAdmin):
 class VerifyPushAdmin(admin.ModelAdmin):
     list_display = (
         'person_id', 'name', 'similarity1', 'similarity2', 
-        'verify_status', 'create_time'
+        'ip_address', 'create_time'
     )
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card', 'mj_card_no')
-    list_filter = ('verify_status', 'create_time', 'verify_type', 'direction')
+    list_filter = ('ip_address', 'create_time', 'verify_type', 'direction')
 
 @admin.register(ICCardInfoPush)
 class ICCardInfoPushAdmin(admin.ModelAdmin):
