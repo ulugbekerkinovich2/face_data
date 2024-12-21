@@ -120,5 +120,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Statik va Media URL
+
+
+# Statik va Media Fayllar Katalogi
+STATIC_ROOT = '/var/www/workers/face_data/static/'
+MEDIA_ROOT = '/var/www/workers/face_data/media/'
+
+# Collectstatic natijasida yaratilgan fayllar manifestini boshqarish uchun
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
