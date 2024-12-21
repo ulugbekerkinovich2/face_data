@@ -14,7 +14,7 @@ def handle_heartbeat(request):
         try:
             data = json.loads(request.body)
             info = data.get("info")
-            # print(info)
+            print(info)
             # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
@@ -45,7 +45,7 @@ def handle_verify_push(request):
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
 
-            print("Verify pushdan keldi:", info)
+            # print("Verify pushdan keldi:", info)
 
             # VerifyPush ma'lumotlarini saqlash
             verify_push = VerifyPush.objects.create(
@@ -97,7 +97,7 @@ def handle_ic_card_info_push(request):
         try:
             data = json.loads(request.body)
             info = data.get("info")
-            print(info)
+            # print(info)
             # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
