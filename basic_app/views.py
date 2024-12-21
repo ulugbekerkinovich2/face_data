@@ -97,7 +97,7 @@ def handle_ic_card_info_push(request):
         try:
             data = json.loads(request.body)
             info = data.get("info")
-
+            print(info)
             # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
