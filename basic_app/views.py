@@ -41,7 +41,7 @@ def handle_verify_push(request):
             # JSON ma'lumotlarni olish
             data = json.loads(request.body)
             info = data.get("info")
-
+            print('kirish', info)
             # Kiritilgan ma'lumotlarni tekshirish
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
