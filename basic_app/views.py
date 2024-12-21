@@ -38,10 +38,16 @@ def handle_heartbeat(request):
 def handle_verify_push(request):
     if request.method == "POST":
         try:
+            ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+            if ip_address:
+                ip_address = ip_address.split(',')[0]  # Birinchi IP manzilni olish
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')  # To'g'ridan-to'g'ri IP manzil
+
             # JSON ma'lumotlarni olish
             data = json.loads(request.body)
             info = data.get("info")
-            print('kirish', info)
+            print(f"Kirish: {info}, Sorov IP: {ip_address}")
             # Kiritilgan ma'lumotlarni tekshirish
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
