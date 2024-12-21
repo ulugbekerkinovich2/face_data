@@ -101,7 +101,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+# settings.py
 TIME_ZONE = 'Asia/Tashkent'
+USE_TZ = True
+
 
 USE_I18N = True
 

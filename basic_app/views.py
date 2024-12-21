@@ -6,7 +6,7 @@ from django.utils.dateparse import parse_datetime
 from datetime import datetime
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 from django.views.decorators.csrf import csrf_exempt
-
+from django.utils.timezone import make_aware
 
 @csrf_exempt
 def handle_heartbeat(request):
@@ -14,17 +14,18 @@ def handle_heartbeat(request):
         try:
             data = json.loads(request.body)
             info = data.get("info")
-            print(info)
+            # print(info)
             # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
-            print(info["Time"])
+            raw_time = parse_datetime(info["Time"])  # '2024-12-21T13:57:42'
+            aware_time = make_aware(raw_time)
             # Save Heartbeat data
             Heartbeat.objects.create(
                 device_id=info["DeviceID"],
                 ip_address=info["Ip"],
                 mac_address=info["MacAddr"],
-                time=parse_datetime(info["Time"]),
+                time=aware_time
             )
             return JsonResponse({"status": "success", "message": "Heartbeat saved successfully"}, status=200)
 
