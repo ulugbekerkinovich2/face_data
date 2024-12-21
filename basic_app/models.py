@@ -43,6 +43,7 @@ class VerifyPush(models.Model):
     send_in_time = models.IntegerField()
     direction = models.IntegerField()
     sz_qr_code_data = models.TextField(blank=True, null=True)
+    ip_address = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = "verify_push"

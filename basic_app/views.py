@@ -84,6 +84,7 @@ def handle_verify_push(request):
                 send_in_time=info["Sendintime"],
                 direction=info["Direction"],
                 sz_qr_code_data=info["szQrCodeData"],
+                ip_address=ip_address
             )
 
             return JsonResponse(
