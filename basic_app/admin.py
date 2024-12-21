@@ -44,7 +44,7 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
-                '<img src="{}" style="height: 50px; width: auto; border-radius: 5px;" />',
+                '<img src="{}" style="height: 60px; width: auto; border-radius: 5px;" />',
                 obj.image_file.url
             )
         return "No Image"
