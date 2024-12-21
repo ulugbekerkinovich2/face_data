@@ -1,14 +1,31 @@
 from django.contrib import admin
-from .models import FaceLog, RFLog
+from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 
-@admin.register(FaceLog)
-class FaceLogAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'user_id', 'name', 'confidence', 'timestamp')
-    search_fields = ('user_id', 'name', 'event_type')
-    list_filter = ('event_type', 'timestamp')
+@admin.register(Heartbeat)
+class HeartbeatAdmin(admin.ModelAdmin):
+    list_display = ('device_id', 'ip_address', 'mac_address', 'time')
+    search_fields = ('device_id', 'ip_address', 'mac_address')
+    list_filter = ('time',)
 
-@admin.register(RFLog)
-class RFLogAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'card_id', 'user_id', 'name', 'timestamp')
-    search_fields = ('card_id', 'user_id', 'name', 'event_type')
-    list_filter = ('event_type', 'timestamp')
+@admin.register(VerifyPush)
+class VerifyPushAdmin(admin.ModelAdmin):
+    list_display = (
+        'person_id', 'name', 'similarity1', 'similarity2', 
+        'verify_status', 'create_time'
+    )
+    search_fields = ('person_id', 'name', 'id_card', 'rfid_card', 'mj_card_no')
+    list_filter = ('verify_status', 'create_time', 'verify_type', 'direction')
+
+@admin.register(ICCardInfoPush)
+class ICCardInfoPushAdmin(admin.ModelAdmin):
+    list_display = ('device_id', 'ic_card_num', 'created_at')
+    search_fields = ('device_id', 'ic_card_num')
+
+@admin.register(StrangerCapture)
+class StrangerCaptureAdmin(admin.ModelAdmin):
+    list_display = (
+        'device_id', 'create_time', 'direction', 
+        'picture_type', 'operator'
+    )
+    search_fields = ('device_id', 'operator')
+    list_filter = ('create_time', 'direction', 'picture_type')
