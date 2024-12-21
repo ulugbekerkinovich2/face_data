@@ -18,7 +18,7 @@ def handle_heartbeat(request):
             # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
-
+            print(info["Time"])
             # Save Heartbeat data
             Heartbeat.objects.create(
                 device_id=info["DeviceID"],
