@@ -62,7 +62,7 @@ def handle_heartbeat(request):
 
             Heartbeat.objects.create(
                 device_id=info["DeviceID"],
-                ip_address=info["Ip"],
+                ip_address=info["Ip"] if info["Ip"] != "aniqlanmadi" else "aniqlanmadi",
                 mac_address=info["MacAddr"],
                 time=aware_time
             )
