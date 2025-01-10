@@ -12,7 +12,7 @@ class HeartbeatAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'ip_address', 'mac_address', 'time')
     search_fields = ('device_id', 'ip_address', 'mac_address')
     list_filter = ('time',)
-
+    list_per_page = 20
     @method_decorator(cache_page(CACHE_TIMEOUT))
     def changelist_view(self, request, extra_context=None):
         return super().changelist_view(request, extra_context=extra_context)
@@ -34,7 +34,7 @@ class VerifyPushAdmin(admin.ModelAdmin):
     )
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card', 'mj_card_no')
     list_filter = ('ip_address', 'create_time', 'verify_type', 'direction')
-
+    list_per_page = 20
     @method_decorator(cache_page(CACHE_TIMEOUT))
     def changelist_view(self, request, extra_context=None):
         return super().changelist_view(request, extra_context=extra_context)
@@ -52,7 +52,7 @@ class VerifyPushAdmin(admin.ModelAdmin):
 class ICCardInfoPushAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
-
+    list_per_page = 20
     @method_decorator(cache_page(CACHE_TIMEOUT))
     def changelist_view(self, request, extra_context=None):
         return super().changelist_view(request, extra_context=extra_context)
@@ -74,7 +74,7 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_filter = ('create_time', 'direction', 'picture_type')
-
+    list_per_page = 20
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
