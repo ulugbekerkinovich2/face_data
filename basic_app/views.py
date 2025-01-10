@@ -50,6 +50,7 @@ def get_client_ip(request):
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
+        my_ip = get_client_ip(request)
         # Avvalo IP manzilni ajratib olamiz
         ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
         if ip_address:
@@ -58,7 +59,7 @@ def handle_heartbeat(request):
             ip_address = request.META.get('REMOTE_ADDR')
 
         # Log uchun IP manzilni ham chop etish
-        print(f"sorov keldi heartbeatga IP: {ip_address}")
+        print(f"sorov keldi heartbeatga IP: {ip_address} my_ip: {my_ip}")
 
         try:
             data = json.loads(request.body)
