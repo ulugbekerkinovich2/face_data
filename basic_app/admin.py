@@ -38,7 +38,7 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
         'device_id', 'create_time', 'direction', 
         'operator', 'ip_address', 'thumbnail'
     )
-    search_fields = ('device_id', 'operator')
+    search_fields = ('device_id', 'operator', 'ip_address')
     list_filter = ('create_time', 'direction', 'picture_type')
 
     def thumbnail(self, obj):
