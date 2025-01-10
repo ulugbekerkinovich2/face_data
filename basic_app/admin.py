@@ -5,7 +5,7 @@ from django.views.decorators.cache import cache_page
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 
 # 5 daqiqa
-CACHE_TIMEOUT = 60 * 2
+CACHE_TIMEOUT = 60 * 4
 
 @admin.register(Heartbeat)
 class HeartbeatAdmin(admin.ModelAdmin):
