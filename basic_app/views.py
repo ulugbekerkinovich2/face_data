@@ -62,8 +62,9 @@ def handle_heartbeat(request):
 
             Heartbeat.objects.create(
                 device_id=info["DeviceID"],
-                ip_address=info["Ip"] if info["Ip"] != "aniqlanmadi" else "aniqlanmadi",
-                mac_address=info["MacAddr"],
+                # ip_address=info["Ip"] if info["Ip"] != "aniqlanmadi" else "aniqlanmadi",
+                ip_address = info.get('Ip', ''),
+                mac_address=info.get("MacAddr", ""),
                 time=aware_time
             )
             return JsonResponse({"status": "success", "message": "Heartbeat saved successfully"}, status=200)
