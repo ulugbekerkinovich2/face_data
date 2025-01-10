@@ -8,22 +8,58 @@ from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
 
+# @csrf_exempt
+# def handle_heartbeat(request):
+#     if request.method == "POST":
+#         print('sorov keldi heartbeatga')
+#         try:
+            
+#             data = json.loads(request.body)
+#             print(data)
+#             info = data.get("info")
+#             # print(info)
+#             # Validate inputs
+#             if not info:
+#                 return JsonResponse({"error": "Invalid data provided"}, status=400)
+#             raw_time = parse_datetime(info["Time"])  # '2024-12-21T13:57:42'
+#             aware_time = make_aware(raw_time)
+#             # Save Heartbeat data
+#             Heartbeat.objects.create(
+#                 device_id=info["DeviceID"],
+#                 ip_address=info["Ip"],
+#                 mac_address=info["MacAddr"],
+#                 time=aware_time
+#             )
+#             return JsonResponse({"status": "success", "message": "Heartbeat saved successfully"}, status=200)
+
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+#     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
-        print('sorov keldi heartbeatga')
+        # Avvalo IP manzilni ajratib olamiz
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+        if ip_address:
+            ip_address = ip_address.split(',')[0]
+        else:
+            ip_address = request.META.get('REMOTE_ADDR')
+
+        # Log uchun IP manzilni ham chop etish
+        print(f"sorov keldi heartbeatga IP: {ip_address}")
+
         try:
-            
             data = json.loads(request.body)
             print(data)
             info = data.get("info")
-            # print(info)
-            # Validate inputs
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
-            raw_time = parse_datetime(info["Time"])  # '2024-12-21T13:57:42'
+
+            raw_time = parse_datetime(info["Time"])
             aware_time = make_aware(raw_time)
-            # Save Heartbeat data
+
             Heartbeat.objects.create(
                 device_id=info["DeviceID"],
                 ip_address=info["Ip"],
@@ -33,9 +69,12 @@ def handle_heartbeat(request):
             return JsonResponse({"status": "success", "message": "Heartbeat saved successfully"}, status=200)
 
         except Exception as e:
+            # Xatolik yuz berganda ham IP manzilni ko‘rsatish
+            print(f"Xatolik handle_heartbeat: IP={ip_address}, ERROR={str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 
 @csrf_exempt
 def handle_verify_push(request):
