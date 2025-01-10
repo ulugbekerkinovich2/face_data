@@ -11,6 +11,7 @@ from django.utils.timezone import make_aware
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
+        print('sorov keldi heartbeatga')
         try:
             data = json.loads(request.body)
             info = data.get("info")
@@ -102,21 +103,36 @@ def handle_verify_push(request):
 @csrf_exempt
 def handle_ic_card_info_push(request):
     if request.method == "POST":
+        print(request.META)
         try:
+            ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+            if ip_address:
+                ip_address = ip_address.split(',')[0]  # Birinchi IP manzilni olish
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')
             data = json.loads(request.body)
             info = data.get("info")
-            # print(info)
-            # Validate inputs
+            print(info)
+            # data = json.loads(request.body)
+            # info = data.get("info")
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
-
-            # Save ICCardInfoPush data
-            ICCardInfoPush.objects.create(
-                device_id=info["DeviceID"],
-                ic_card_num=info["ICCardNum"],
+            ic_card_info = ICCardInfoPush.objects.create(
+                device_id=info.get("DeviceID"),
+                ic_card_num=info.get("ICCardNum"),
+                created_at=parse_datetime(info.get("CreateTime")),
+                ip_address=ip_address,
             )
-            return JsonResponse({"status": "success", "message": "ICCardInfoPush saved successfully"}, status=200)
 
+            return JsonResponse(
+                {"status": "success", "message": "ICCardInfoPush saved successfully", "ic_card_info_id": ic_card_info.id},
+                status=200,
+            )
+
+        except KeyError as e:
+            return JsonResponse({"error": f"Missing key: {str(e)}"}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
@@ -129,7 +145,8 @@ def handle_stranger_capture(request):
             data = json.loads(request.body)
             base64_image = data.get("SanpPic")
             info = data.get("info")
-
+            ip_address = info.get("ip_address")
+            print(info)
             # Validate inputs
             if not base64_image or not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
@@ -149,6 +166,7 @@ def handle_stranger_capture(request):
                 picture_type=info["PictureType"],
                 send_in_time=info["Sendintime"],
                 operator=data["operator"],
+                ip_address=ip_address
             )
             stranger_capture.image_file.save(image_filename, ContentFile(decoded_image), save=True)
             

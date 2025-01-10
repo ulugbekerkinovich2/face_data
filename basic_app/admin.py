@@ -19,7 +19,7 @@ class VerifyPushAdmin(admin.ModelAdmin):
 
 @admin.register(ICCardInfoPush)
 class ICCardInfoPushAdmin(admin.ModelAdmin):
-    list_display = ('device_id', 'ic_card_num', 'created_at')
+    list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
 
 # @admin.register(StrangerCapture)
@@ -36,7 +36,7 @@ class ICCardInfoPushAdmin(admin.ModelAdmin):
 class StrangerCaptureAdmin(admin.ModelAdmin):
     list_display = (
         'device_id', 'create_time', 'direction', 
-        'picture_type', 'operator', 'thumbnail'
+        'operator', 'ip_address', 'thumbnail'
     )
     search_fields = ('device_id', 'operator')
     list_filter = ('create_time', 'direction', 'picture_type')
@@ -44,7 +44,7 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
-                '<img src="{}" style="height: 60px; width: auto; border-radius: 5px;" />',
+                '<img src="{}" style="height: 70px; width: auto; border-radius: 5px;" />',
                 obj.image_file.url
             )
         return "No Image"

@@ -58,6 +58,7 @@ class ICCardInfoPush(models.Model):
     device_id = models.IntegerField()
     ic_card_num = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now=True,blank=True, null=True)
+    ip_address = models.CharField(max_length=255, blank=True, null=True, default='aniqlanmagan')
 
     def __str__(self):
         return f"ICCardInfoPush from Device {self.device_id}"
@@ -75,6 +76,7 @@ class StrangerCapture(models.Model):
     picture_type = models.IntegerField()
     send_in_time = models.IntegerField()
     operator = models.CharField(max_length=50)
+    ip_address = models.CharField(max_length=255, blank=True, null=True, default='aniqlanmagan')
     
     def __str__(self):
         return f"StrangerCapture from Device {self.device_id} at {self.create_time}"
