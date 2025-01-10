@@ -7,6 +7,16 @@ from datetime import datetime
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
+from django.views.decorators.cache import cache_page
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        # Agar reverse proxy yoki load balancer bo‘lsa, IP manzil bir nechta bo‘lishi mumkin
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 # @csrf_exempt
 # def handle_heartbeat(request):
@@ -36,7 +46,7 @@ from django.utils.timezone import make_aware
 #             return JsonResponse({"error": str(e)}, status=500)
 
 #     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
-
+@cache_page(60 * 1)
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
@@ -81,7 +91,7 @@ def handle_heartbeat(request):
 def handle_verify_push(request):
     if request.method == "POST":
         try:
-            
+            my_ip = get_client_ip(request)
             ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
             if ip_address:
                 ip_address = ip_address.split(',')[0]  # Birinchi IP manzilni olish
@@ -92,7 +102,7 @@ def handle_verify_push(request):
             data = json.loads(request.body)
             info = data.get("info")
             print(data)
-            print(f"Kirish: {info}, Sorov IP: {ip_address}")
+            print(f"Kirish: {info}, Sorov IP: {ip_address}, my_ip:", {my_ip})
             # Kiritilgan ma'lumotlarni tekshirish
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)

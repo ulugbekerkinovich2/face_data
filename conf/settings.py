@@ -136,3 +136,22 @@ STATICFILES_DIRS = []
 
 # Collectstatic natijasida yaratilgan fayllar manifestini boshqarish uchun
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',  # yoki Memcached
+        'LOCATION': 'redis://127.0.0.1:6379/1',      # Redis misol
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+        'TIMEOUT': 300,  # 5 daqiqa
+    }
+}
