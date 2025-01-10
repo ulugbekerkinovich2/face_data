@@ -2,8 +2,8 @@ from django.db import models
 
 class Heartbeat(models.Model):
     device_id = models.IntegerField()
-    ip_address = models.GenericIPAddressField()
-    mac_address = models.CharField(max_length=50)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    mac_address = models.CharField(max_length=50, blank=True, null=True)
     time = models.DateTimeField()
 
     def __str__(self):
