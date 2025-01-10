@@ -13,7 +13,9 @@ def handle_heartbeat(request):
     if request.method == "POST":
         print('sorov keldi heartbeatga')
         try:
+            
             data = json.loads(request.body)
+            print(data)
             info = data.get("info")
             # print(info)
             # Validate inputs
@@ -39,6 +41,7 @@ def handle_heartbeat(request):
 def handle_verify_push(request):
     if request.method == "POST":
         try:
+            
             ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
             if ip_address:
                 ip_address = ip_address.split(',')[0]  # Birinchi IP manzilni olish
@@ -48,6 +51,7 @@ def handle_verify_push(request):
             # JSON ma'lumotlarni olish
             data = json.loads(request.body)
             info = data.get("info")
+            print(data)
             print(f"Kirish: {info}, Sorov IP: {ip_address}")
             # Kiritilgan ma'lumotlarni tekshirish
             if not info:
@@ -103,7 +107,7 @@ def handle_verify_push(request):
 @csrf_exempt
 def handle_ic_card_info_push(request):
     if request.method == "POST":
-        print(request.META)
+        # print(request.META)
         try:
             ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
             if ip_address:
@@ -112,7 +116,7 @@ def handle_ic_card_info_push(request):
                 ip_address = request.META.get('REMOTE_ADDR')
             data = json.loads(request.body)
             info = data.get("info")
-            print(info)
+            print(data)
             # data = json.loads(request.body)
             # info = data.get("info")
             if not info:
@@ -146,7 +150,7 @@ def handle_stranger_capture(request):
             base64_image = data.get("SanpPic")
             info = data.get("info")
             ip_address = info.get("ip_address")
-            print(info)
+            print(data)
             # Validate inputs
             if not base64_image or not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
