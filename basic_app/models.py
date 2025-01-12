@@ -10,7 +10,7 @@ class Heartbeat(models.Model):
         return f"Heartbeat from Device {self.device_id} at {self.time}"
     class Meta:
         verbose_name_plural = "Heartbeats"
-        ordering = ['-time']
+        # ordering = ['-time']
         verbose_name = "Heartbeat"
         indexes = [
             models.Index(fields=['device_id', 'time']),  # Adding index on device_id and time
