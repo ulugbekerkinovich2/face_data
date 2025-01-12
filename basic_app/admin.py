@@ -11,7 +11,7 @@ CACHE_TIMEOUT = 60 * 4
 class HeartbeatAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'ip_address', 'mac_address', 'time')
     search_fields = ('device_id', 'ip_address', 'mac_address')
-    list_filter = ('time',)
+    # list_filter = ('time',)
     list_per_page = 20
     @method_decorator(cache_page(CACHE_TIMEOUT))
     def changelist_view(self, request, extra_context=None):
@@ -29,11 +29,11 @@ class HeartbeatAdmin(admin.ModelAdmin):
 @admin.register(VerifyPush)
 class VerifyPushAdmin(admin.ModelAdmin):
     list_display = (
-        'person_id', 'name', 'similarity1', 'similarity2', 
+        'person_id', 'name', 'similarity1', 
         'ip_address', 'create_time'
     )
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card', 'mj_card_no')
-    list_filter = ('ip_address', 'create_time', 'verify_type', 'direction')
+    list_filter = ('ip_address', 'create_time', 'verify_type')
     list_per_page = 20
     @method_decorator(cache_page(CACHE_TIMEOUT))
     def changelist_view(self, request, extra_context=None):
@@ -73,7 +73,7 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
         'operator', 'ip_address', 'thumbnail'
     )
     search_fields = ('device_id', 'operator', 'ip_address')
-    list_filter = ('create_time', 'direction', 'picture_type')
+    list_filter = ('create_time', 'picture_type')
     list_per_page = 20
     def thumbnail(self, obj):
         if obj.image_file:
