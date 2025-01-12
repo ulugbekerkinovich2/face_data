@@ -155,7 +155,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
     list_display = ('person_id', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     # list_filter = ('create_time',)
-    list_per_page = 10
+    list_per_page = 100
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
