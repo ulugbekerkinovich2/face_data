@@ -1,51 +1,20 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
-
-# 5 daqiqa
-CACHE_TIMEOUT = 60 * 4
 
 @admin.register(Heartbeat)
 class HeartbeatAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'time')
-    search_fields = ('device_id')
-    # list_filter = ('time',)
+    search_fields = ('device_id',)
     list_per_page = 10
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        return super().change_view(request, object_id, form_url, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def add_view(self, request, form_url='', extra_context=None):
-        return super().add_view(request, form_url, extra_context=extra_context)
 
 
 @admin.register(VerifyPush)
 class VerifyPushAdmin(admin.ModelAdmin):
-    list_display = (
-        'person_id', 'name', 
-        'create_time'
-    )
+    list_display = ('person_id', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card', 'mj_card_no')
-    list_filter = ('create_time')
+    list_filter = ('create_time',)
     list_per_page = 10
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        return super().change_view(request, object_id, form_url, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def add_view(self, request, form_url='', extra_context=None):
-        return super().add_view(request, form_url, extra_context=extra_context)
 
 
 @admin.register(ICCardInfoPush)
@@ -53,17 +22,6 @@ class ICCardInfoPushAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
     list_per_page = 10
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request, extra_context=extra_context)
-    
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        return super().change_view(request, object_id, form_url, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def add_view(self, request, form_url='', extra_context=None):
-        return super().add_view(request, form_url, extra_context=extra_context)
 
 
 @admin.register(StrangerCapture)
@@ -73,8 +31,9 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
         'operator', 'ip_address', 'thumbnail'
     )
     search_fields = ('device_id', 'operator', 'ip_address')
-    list_filter = ('create_time')
+    list_filter = ('create_time',)
     list_per_page = 10
+
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
@@ -83,15 +42,3 @@ class StrangerCaptureAdmin(admin.ModelAdmin):
             )
         return "No Image"
     thumbnail.short_description = "Image Preview"
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        return super().change_view(request, object_id, form_url, extra_context=extra_context)
-
-    @method_decorator(cache_page(CACHE_TIMEOUT))
-    def add_view(self, request, form_url='', extra_context=None):
-        return super().add_view(request, form_url, extra_context=extra_context)
