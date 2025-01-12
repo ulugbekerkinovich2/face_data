@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-^fkv0x+kc+++d3gm2o4u-6l3au9_*-jjhv&+(3$6q^&8gmt-5)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["https://face-id.misterdev.uz/"]
 
 
 # Application definition
@@ -136,6 +136,8 @@ STATICFILES_DIRS = []
 
 # Collectstatic natijasida yaratilgan fayllar manifestini boshqarish uchun
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 
 
 CACHES = {
@@ -145,13 +147,5 @@ CACHES = {
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
-    }
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '127.0.0.1:11211',
-        'TIMEOUT': 300,  # 5 daqiqa
     }
 }
