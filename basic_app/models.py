@@ -12,6 +12,9 @@ class Heartbeat(models.Model):
         verbose_name_plural = "Heartbeats"
         ordering = ['-time']
         verbose_name = "Heartbeat"
+        indexes = [
+            models.Index(fields=['device_id', 'time']),  # Adding index on device_id and time
+        ]
 
 
 class VerifyPush(models.Model):
@@ -49,6 +52,11 @@ class VerifyPush(models.Model):
         db_table = "verify_push"
         verbose_name = "Verify Push"
         verbose_name_plural = "Verify Pushes"
+        indexes = [
+            models.Index(fields=['person_id', 'verify_status']),
+            models.Index(fields=['create_time']),
+            models.Index(fields=['id_card']),  # Example of indexing the ID card field
+        ]
 
     def __str__(self):
         return f"{self.name} (ID: {self.person_id})"
@@ -66,6 +74,9 @@ class ICCardInfoPush(models.Model):
     class Meta:
         verbose_name_plural = "ICCard Info Pushes"
         verbose_name = "ICCard Info Push"
+        indexes = [
+            models.Index(fields=['device_id', 'created_at']),  # Index for device_id and created_at
+        ]
 
 
 class StrangerCapture(models.Model):
@@ -83,3 +94,7 @@ class StrangerCapture(models.Model):
     class Meta:
         verbose_name_plural = "Stranger Captures"
         verbose_name = "Stranger Capture"
+        indexes = [
+            models.Index(fields=['device_id', 'create_time']),
+            models.Index(fields=['direction']),  # Index for direction field
+        ]
