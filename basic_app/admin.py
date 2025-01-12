@@ -139,7 +139,7 @@ class HeartbeatAdmin(BaseCacheAdmin):
         Oxirgi 7 kunlik ma'lumotni keshlaydi.
         """
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=7)
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
         # Kesh kalitiga threshold-ni ham qo'shib, kuniga 1 marta yangilanadigan qilib qo'yamiz
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
@@ -159,7 +159,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=7)
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
@@ -176,7 +176,7 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=7)
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
@@ -197,7 +197,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=7)
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
