@@ -37,7 +37,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
 class HeartbeatAdmin(BaseCacheAdmin):
     list_display = ('device_id', 'ip_address', 'time')
     search_fields = ('device_id',)
-    list_per_page = 10
+    list_per_page = 100
 
 
 @admin.register(VerifyPush)
@@ -61,7 +61,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
 class ICCardInfoPushAdmin(BaseCacheAdmin):
     list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
-    list_per_page = 10
+    list_per_page = 100
 
 
 @admin.register(StrangerCapture)
@@ -72,7 +72,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_filter = ('create_time',)
-    list_per_page = 10
+    list_per_page = 100
 
     # def thumbnail(self, obj):
     #     if obj.image_file:
