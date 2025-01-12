@@ -136,7 +136,7 @@ STATICFILES_DIRS = []
 
 # Collectstatic natijasida yaratilgan fayllar manifestini boshqarish uchun
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 
