@@ -154,7 +154,7 @@ class HeartbeatAdmin(BaseCacheAdmin):
 class VerifyPushAdmin(BaseCacheAdmin):
     list_display = ('person_id', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
-    list_filter = ('create_time',)
+    # list_filter = ('create_time',)
     list_per_page = 10
 
     def get_queryset(self, request):
@@ -192,7 +192,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
         'operator', 'ip_address', 'thumbnail'
     )
     search_fields = ('device_id', 'operator', 'ip_address')
-    list_filter = ('create_time',)
+    # list_filter = ('create_time',)
     list_per_page = 100
 
     def get_queryset(self, request):
