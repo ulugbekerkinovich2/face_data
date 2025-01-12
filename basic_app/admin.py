@@ -4,7 +4,7 @@ from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 
 @admin.register(Heartbeat)
 class HeartbeatAdmin(admin.ModelAdmin):
-    list_display = ('device_id', 'time')
+    list_display = ('device_id', 'ip_address', 'time')
     search_fields = ('device_id',)
     list_per_page = 10
 

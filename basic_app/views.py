@@ -7,7 +7,7 @@ from datetime import datetime
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -46,7 +46,7 @@ def get_client_ip(request):
 #             return JsonResponse({"error": str(e)}, status=500)
 
 #     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
-@cache_page(60 * 1)
+# @cache_page(60 * 1)
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
