@@ -68,17 +68,17 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
 class StrangerCaptureAdmin(BaseCacheAdmin):
     list_display = (
         'device_id', 'create_time', 'direction', 
-        'operator', 'ip_address', 'thumbnail'
+        'operator', 'ip_address'
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_filter = ('create_time',)
     list_per_page = 10
 
-    def thumbnail(self, obj):
-        if obj.image_file:
-            return format_html(
-                '<img src="{}" style="height: 70px; width: auto; border-radius: 5px;" />',
-                obj.image_file.url
-            )
-        return "No Image"
-    thumbnail.short_description = "Image Preview"
+    # def thumbnail(self, obj):
+    #     if obj.image_file:
+    #         return format_html(
+    #             '<img src="{}" style="height: 70px; width: auto; border-radius: 5px;" />',
+    #             obj.image_file.url
+    #         )
+    #     return "No Image"
+    # thumbnail.short_description = "Image Preview"
