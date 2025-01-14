@@ -223,8 +223,8 @@ import datetime
 from .models import Heartbeat, VerifyPush, StrangerCapture
 
 # Kirish va chiqish uchun `device_id` ro‘yxatlari
-IN_DEVICES = ["2489019", "2489007", "2489005", "2488986"]
-OUT_DEVICES = ["2489002", "2489012", "2488993", "2488999"]
+IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
+OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
 
 class BaseCacheAdmin(admin.ModelAdmin):
     """
