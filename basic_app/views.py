@@ -168,7 +168,7 @@ def handle_ic_card_info_push(request):
                 ip_address = request.META.get('REMOTE_ADDR')
             data = json.loads(request.body)
             info = data.get("info")
-            print(data)
+            print('card', data)
             # data = json.loads(request.body)
             # info = data.get("info")
             if not info:
