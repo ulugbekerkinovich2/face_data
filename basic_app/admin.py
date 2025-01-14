@@ -152,7 +152,7 @@ class HeartbeatAdmin(BaseCacheAdmin):
 
 @admin.register(VerifyPush)
 class VerifyPushAdmin(BaseCacheAdmin):
-    list_display = ('person_id', 'name', 'create_time')
+    list_display = ('person_id','device_id', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     # list_filter = ('create_time',)
     list_per_page = 100
