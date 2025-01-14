@@ -19,6 +19,7 @@ class Heartbeat(models.Model):
 
 class VerifyPush(models.Model):
     person_id = models.IntegerField()
+    device_id = models.IntegerField(null=True, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     similarity1 = models.FloatField()
     similarity2 = models.FloatField()

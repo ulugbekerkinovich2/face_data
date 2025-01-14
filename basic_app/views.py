@@ -113,6 +113,7 @@ def handle_verify_push(request):
             # VerifyPush ma'lumotlarini saqlash
             verify_push = VerifyPush.objects.create(
                 person_id=info["PersonID"],
+                device_id=info["DeviceID"],
                 create_time=parse_datetime(info["CreateTime"]),
                 similarity1=info["Similarity1"],
                 similarity2=info["Similarity2"],
