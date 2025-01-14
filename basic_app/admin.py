@@ -1,6 +1,6 @@
 # # from django.contrib import admin
 # # from django.utils.html import format_html
-# # from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
+# from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 # # from django.core.cache import cache
 
 # # class BaseCacheAdmin(admin.ModelAdmin):
@@ -220,7 +220,7 @@ from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
 import datetime
-from .models import Heartbeat, VerifyPush, StrangerCapture
+from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush
 
 # Kirish va chiqish uchun `device_id` ro‘yxatlari
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
@@ -305,3 +305,20 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
         return "No Image"
 
     thumbnail.short_description = "Image Preview"
+
+
+@admin.register(ICCardInfoPush)
+class ICCardInfoPushAdmin(BaseCacheAdmin):
+    list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
+    search_fields = ('device_id', 'ic_card_num')
+    list_per_page = 100
+
+    def get_queryset(self, request):
+        model_name = self.model._meta.model_name
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
+        cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
+        qs = cache.get(cache_key)
+        if qs is None:
+            qs = super(BaseCacheAdmin, self).get_queryset(request).filter(created_at__gte=threshold_date)
+            cache.set(cache_key, qs, self.cache_timeout)
+        return qs
