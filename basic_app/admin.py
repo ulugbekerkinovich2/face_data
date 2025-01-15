@@ -264,11 +264,20 @@ class BaseCacheAdmin(admin.ModelAdmin):
         """
         Har bir `device_id` uchun harakat turini (IN yoki OUT) ko‘rsatadi.
         """
-        if obj.device_id in IN_DEVICES:
+        try:
+            # device_id'ni int ga o'zgartirishga harakat qilamiz
+            device_id = int(obj.device_id)
+        except (ValueError, TypeError):
+            # Agar device_id int ga o'zgarmasa, "Unknown" qaytaramiz
+            return "Unknown"
+
+        # IN yoki OUT harakatini aniqlash
+        if device_id in IN_DEVICES:
             return format_html('<span style="color: green; font-weight: bold;">IN</span>')
-        elif obj.device_id in OUT_DEVICES:
+        elif device_id in OUT_DEVICES:
             return format_html('<span style="color: red; font-weight: bold;">OUT</span>')
         return "Unknown"
+
 
     movement.short_description = "Movement Direction"
 
