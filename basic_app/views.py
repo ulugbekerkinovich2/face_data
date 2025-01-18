@@ -202,7 +202,8 @@ def handle_stranger_capture(request):
             base64_image = data.get("SanpPic")
             info = data.get("info")
             ip_address = info.get("ip_address")
-            print(data)
+            print('stranger', ip_address)
+            # print(data)
             # Validate inputs
             if not base64_image or not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
