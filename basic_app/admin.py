@@ -279,8 +279,8 @@ class VerifyPushAdmin(BaseCacheAdmin):
 @admin.register(StrangerCapture)
 class StrangerCaptureAdmin(BaseCacheAdmin):
     list_display = (
-        'device_id', 'movement', 'create_time', 'direction',
-        'operator', 'ip_address', 'thumbnail'
+        'device_id', 'movement', 'create_time',
+        'thumbnail'
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_per_page = 100
@@ -299,7 +299,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
 
 @admin.register(ICCardInfoPush)
 class ICCardInfoPushAdmin(BaseCacheAdmin):
-    list_display = ('device_id', "movement", 'ic_card_num', 'created_at', 'ip_address')
+    list_display = ('device_id', 'movement', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
     list_per_page = 100
     time_field = "created_at"
