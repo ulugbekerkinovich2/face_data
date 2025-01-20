@@ -237,29 +237,36 @@ def handle_qr_code_push(request):
     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
 
 
+# @csrf_exempt
+# def handle_alarm_push(request):
+#     if request.method == "POST":
+#         try:
+#             # IP manzilni olish
+#             ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+#             if ip_address:
+#                 ip_address = ip_address.split(',')[0]
+#             else:
+#                 ip_address = request.META.get('REMOTE_ADDR')
+            
+#             # Kelgan JSON ma’lumotni olish
+#             data = json.loads(request.body)
+#             print("Alarm Data:", data)  # Logga chiqarish
+            
+#             return JsonResponse(
+#                 {"status": "success", "message": "Alarm data received", "ip_address": ip_address},
+#                 status=200
+#             )
+        
+#         except json.JSONDecodeError:
+#             return JsonResponse({"error": "Invalid JSON format"}, status=400)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+#     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
 @csrf_exempt
 def handle_alarm_push(request):
     if request.method == "POST":
-        try:
-            # IP manzilni olish
-            ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
-            if ip_address:
-                ip_address = ip_address.split(',')[0]
-            else:
-                ip_address = request.META.get('REMOTE_ADDR')
-            
-            # Kelgan JSON ma’lumotni olish
-            data = json.loads(request.body)
-            print("Alarm Data:", data)  # Logga chiqarish
-            
-            return JsonResponse(
-                {"status": "success", "message": "Alarm data received", "ip_address": ip_address},
-                status=200
-            )
-        
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+        data = json.loads(request.body)
+        print("Alarm data received:", data)
+        return JsonResponse({"status": "success"}, status=200)
+    return JsonResponse({"error": "Invalid method"}, status=405)
