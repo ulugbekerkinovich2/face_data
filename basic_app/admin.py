@@ -222,76 +222,59 @@ from django.core.cache import cache
 import datetime
 from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush
 
-# Kirish va chiqish uchun `device_id` ro‘yxatlari
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
 
 class BaseCacheAdmin(admin.ModelAdmin):
     """
-    Har bir ModelAdmin uchun keshni sozlab beradigan bazaviy klass.
+    Har bir ModelAdmin uchun oxirgi 3 kunlik ma’lumotni ko‘rsatadigan bazaviy klass.
     """
     cache_key_prefix = "admin_queryset"
-    cache_timeout = 120  # 120 soniya
+    cache_timeout = 120
+    time_field = "created_at"  # Default vaqt maydoni
 
     def get_queryset(self, request):
+        """
+        Oxirgi 3 kunlik ma’lumotni keshda saqlash va qaytarish.
+        """
         model_name = self.model._meta.model_name
-        cache_key = f"{self.cache_key_prefix}_{model_name}"
+        threshold_date = timezone.now() - datetime.timedelta(days=3)
+        cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
-            qs = super().get_queryset(request)
+            qs = super().get_queryset(request).filter(**{f"{self.time_field}__gte": threshold_date})
             cache.set(cache_key, qs, self.cache_timeout)
         return qs
 
-    def save_model(self, request, obj, form, change):
-        """
-        Ma'lumot saqlanganda keshni buzib tashlaymiz.
-        """
-        super().save_model(request, obj, form, change)
-        model_name = self.model._meta.model_name
-        cache_key = f"{self.cache_key_prefix}_{model_name}"
-        cache.delete(cache_key)
-
-    def delete_model(self, request, obj):
-        """
-        Ma'lumot o'chirilganda ham keshni buzib tashlaymiz.
-        """
-        super().delete_model(request, obj)
-        model_name = self.model._meta.model_name
-        cache_key = f"{self.cache_key_prefix}_{model_name}"
-        cache.delete(cache_key)
-
     def movement(self, obj):
         """
-        Har bir `device_id` uchun harakat turini (IN yoki OUT) ko‘rsatadi.
+        Har bir `device_id` uchun harakat turini ko‘rsatadi.
         """
-        try:
-            # device_id'ni int ga o'zgartirishga harakat qilamiz
-            device_id = int(obj.device_id)
-        except (ValueError, TypeError):
-            # Agar device_id int ga o'zgarmasa, "Unknown" qaytaramiz
-            return "Unknown"
-
-        # IN yoki OUT harakatini aniqlash
+        device_id = int(obj.device_id) if obj.device_id else None
         if device_id in IN_DEVICES:
             return format_html('<span style="color: green; font-weight: bold;">IN</span>')
         elif device_id in OUT_DEVICES:
             return format_html('<span style="color: red; font-weight: bold;">OUT</span>')
         return "Unknown"
 
-
     movement.short_description = "Movement Direction"
+
 
 @admin.register(Heartbeat)
 class HeartbeatAdmin(BaseCacheAdmin):
     list_display = ('device_id', 'ip_address', 'movement', 'time')
     search_fields = ('device_id',)
     list_per_page = 100
+    time_field = "time"
+
 
 @admin.register(VerifyPush)
 class VerifyPushAdmin(BaseCacheAdmin):
     list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     list_per_page = 100
+    time_field = "create_time"
+
 
 @admin.register(StrangerCapture)
 class StrangerCaptureAdmin(BaseCacheAdmin):
@@ -301,11 +284,9 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_per_page = 100
+    time_field = "create_time"
 
     def thumbnail(self, obj):
-        """
-        Rasm fayli bo'lsa, uning kichik ko'rinishini ko'rsatadi.
-        """
         if obj.image_file:
             return format_html(
                 '<img src="{}" style="height: 70px; width: auto; border-radius: 5px;" />',
@@ -321,13 +302,4 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
     list_display = ('device_id', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
     list_per_page = 100
-
-    def get_queryset(self, request):
-        model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=3)
-        cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
-        qs = cache.get(cache_key)
-        if qs is None:
-            qs = super(BaseCacheAdmin, self).get_queryset(request).filter(created_at__gte=threshold_date)
-            cache.set(cache_key, qs, self.cache_timeout)
-        return qs
+    time_field = "created_at"

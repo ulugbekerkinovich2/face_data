@@ -5,6 +5,7 @@ class Heartbeat(models.Model):
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     mac_address = models.CharField(max_length=50, blank=True, null=True)
     time = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"Heartbeat from Device {self.device_id} at {self.time}"
