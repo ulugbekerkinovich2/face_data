@@ -230,7 +230,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
     Har bir ModelAdmin uchun oxirgi 3 kunlik ma’lumotni ko‘rsatadigan bazaviy klass.
     """
     cache_key_prefix = "admin_queryset"
-    cache_timeout = 120
+    cache_timeout = 5
     time_field = "created_at"  # Default vaqt maydoni
 
     def get_queryset(self, request):
