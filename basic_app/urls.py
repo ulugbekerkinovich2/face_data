@@ -16,6 +16,7 @@ urlpatterns = [
     path('Subscribe/stranger', handle_stranger_capture, name='handle_stranger_capture'),
     path('Subscribe/QRCode', handle_qr_code_push, name='handle_qrcode_push'),
     path('Subscribe/Alarm', handle_alarm_push, name='handle_alarm_push'),
+    
 ]
 
 # if settings.DEBUG:
