@@ -279,8 +279,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
 @admin.register(StrangerCapture)
 class StrangerCaptureAdmin(BaseCacheAdmin):
     list_display = (
-        'thumbnail', 'movement', 'device_id',  'create_time',
-        
+        'device_id', 'movement', 'create_time', 'thumbnail',
     )
     search_fields = ('device_id', 'operator', 'ip_address')
     list_per_page = 100
