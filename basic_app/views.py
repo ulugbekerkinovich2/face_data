@@ -30,11 +30,11 @@ def handle_heartbeat(request):
             ip_address = request.META.get('REMOTE_ADDR')
 
         # Log uchun IP manzilni ham chop etish
-        print(f"sorov keldi heartbeatga IP: {ip_address} my_ip: {my_ip}")
+        # print(f"sorov keldi heartbeatga IP: {ip_address} my_ip: {my_ip}")
 
         try:
             data = json.loads(request.body)
-            print(data)
+            # print(data)
             info = data.get("info")
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
@@ -73,8 +73,8 @@ def handle_verify_push(request):
             # JSON ma'lumotlarni olish
             data = json.loads(request.body)
             info = data.get("info")
-            print(data)
-            print(f"Kirish: {info}, Sorov IP: {ip_address}, my_ip:", {my_ip})
+            # print(data)
+            # print(f"Kirish: {info}, Sorov IP: {ip_address}, my_ip:", {my_ip})
             # Kiritilgan ma'lumotlarni tekshirish
             if not info:
                 return JsonResponse({"error": "Invalid data provided"}, status=400)
@@ -139,7 +139,7 @@ def handle_ic_card_info_push(request):
                 ip_address = request.META.get('REMOTE_ADDR')
             data = json.loads(request.body)
             info = data.get("info")
-            print('card', data)
+            # print('card', data)
             # data = json.loads(request.body)
             # info = data.get("info")
             if not info:
@@ -172,7 +172,7 @@ def handle_stranger_capture(request):
             base64_image = data.get("SanpPic")
             info = data.get("info")
             ip_address = info.get("ip_address")
-            print('stranger', ip_address)
+            # print('stranger', ip_address)
             # print(data)
             # Validate inputs
             if not base64_image or not info:
