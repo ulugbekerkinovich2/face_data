@@ -262,7 +262,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
 
 @admin.register(Heartbeat)
 class HeartbeatAdmin(BaseCacheAdmin):
-    list_display = ('device_id', 'ip_address', 'movement', 'time')
+    list_display = ('device_id', 'movement', 'ip_address',  'time')
     search_fields = ('device_id',)
     list_per_page = 100
     time_field = "time"
