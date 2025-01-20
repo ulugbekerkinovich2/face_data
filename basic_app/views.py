@@ -18,35 +18,6 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-# @csrf_exempt
-# def handle_heartbeat(request):
-#     if request.method == "POST":
-#         print('sorov keldi heartbeatga')
-#         try:
-            
-#             data = json.loads(request.body)
-#             print(data)
-#             info = data.get("info")
-#             # print(info)
-#             # Validate inputs
-#             if not info:
-#                 return JsonResponse({"error": "Invalid data provided"}, status=400)
-#             raw_time = parse_datetime(info["Time"])  # '2024-12-21T13:57:42'
-#             aware_time = make_aware(raw_time)
-#             # Save Heartbeat data
-#             Heartbeat.objects.create(
-#                 device_id=info["DeviceID"],
-#                 ip_address=info["Ip"],
-#                 mac_address=info["MacAddr"],
-#                 time=aware_time
-#             )
-#             return JsonResponse({"status": "success", "message": "Heartbeat saved successfully"}, status=200)
-
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-
-#     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
-# @cache_page(60 * 1)
 @csrf_exempt
 def handle_heartbeat(request):
     if request.method == "POST":
@@ -176,7 +147,6 @@ def handle_ic_card_info_push(request):
             ic_card_info = ICCardInfoPush.objects.create(
                 device_id=info.get("DeviceID"),
                 ic_card_num=info.get("ICCardNum"),
-                created_at=parse_datetime(info.get("CreateTime")),
                 ip_address=ip_address,
             )
 
