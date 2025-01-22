@@ -238,7 +238,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
         Oxirgi 3 kunlik ma’lumotni keshda saqlash va qaytarish.
         """
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=3)
+        threshold_date = timezone.now() - datetime.timedelta(days=5)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
