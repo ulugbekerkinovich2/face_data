@@ -272,6 +272,7 @@ class HeartbeatAdmin(BaseCacheAdmin):
 class VerifyPushAdmin(BaseCacheAdmin):
     list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
+    list_filter = ('create_time',)
     list_per_page = 100
     time_field = "create_time"
 
