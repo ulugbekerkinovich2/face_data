@@ -288,7 +288,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
-                '<img src="{}" style="height: 70px; width: auto; border-radius: 5px;" />',
+                '<img src="{}" style="height: 135px; width: auto; border-radius: 10px;" />',
                 obj.image_file.url
             )
         return "No Image"
