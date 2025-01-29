@@ -281,6 +281,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     list_display = (
         'device_id', 'movement', 'create_time', 'thumbnail',
     )
+    list_filter = ("create_time"),
     search_fields = ('device_id', 'operator', 'ip_address')
     list_per_page = 100
     time_field = "create_time"
