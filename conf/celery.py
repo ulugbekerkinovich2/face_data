@@ -20,8 +20,8 @@ app.conf.beat_schedule = {
         'task': 'basic_app.tasks.backup_database',  # To'g'ri vazifa yo'li
         'schedule': crontab(minute='*/30'),
     },
-    'get-list-management': {
-        'task': 'basic_app.tasks.get_list_management_task',
-        'schedule': crontab(minute='*/20'),
-    }
+    # 'get-list-management': {
+    #     'task': 'basic_app.tasks.get_list_management_task',
+    #     'schedule': crontab(minute='*/20'),
+    # }
 }
