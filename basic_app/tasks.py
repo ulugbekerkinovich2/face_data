@@ -157,3 +157,4 @@ def get_list_management_task():
 
     except Exception as e:
         logging.error(f"❌ get_list_management_task encountered an error: {e}")
+        
