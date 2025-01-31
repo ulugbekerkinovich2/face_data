@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 class Heartbeat(models.Model):
     device_id = models.IntegerField()
@@ -100,3 +101,69 @@ class StrangerCapture(models.Model):
             models.Index(fields=['device_id', 'create_time']),
             models.Index(fields=['direction']),  # Index for direction field
         ]
+
+
+class UsersManagement(models.Model):
+    face_id = models.IntegerField(null=True, blank=True)
+    uid = models.BigIntegerField()
+    name = models.TextField(null=True, blank=True)
+    type = models.BigIntegerField(null=True, blank=True)
+    rf_id_card_num = models.BigIntegerField(null=True, blank=True)
+    gender = models.TextField(null=True, blank=True)
+    extra_info = models.TextField(null=True, blank=True)
+    dwfiletype = models.BigIntegerField(null=True, blank=True)
+    dwfileindex = models.BigIntegerField(null=True, blank=True)
+    dwfilepos = models.BigIntegerField(null=True, blank=True)
+    time = models.DateTimeField(null=True, blank=True)
+    RanId = models.BigIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.time, str) and "/" in self.time:
+            self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
+        super(UsersManagement, self).save(*args, **kwargs)
+
+
+
+class StrangerCaptureLog(models.Model):
+    face_id = models.IntegerField(null=True, blank=True)
+    uid = models.BigIntegerField()
+    time = models.DateTimeField(null=True, blank=True)
+    dwfiletype = models.BigIntegerField(null=True, blank=True)
+    dwfileindex = models.BigIntegerField(null=True, blank=True)
+    dwfilepos = models.BigIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"UID: {self.uid}, Time: {self.time}"
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.time, str) and "/" in self.time:
+            self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
+        super(StrangerCaptureLog, self).save(*args, **kwargs)
+
+
+class ControlLog(models.Model):
+    face_id = models.IntegerField(null=True, blank=True)
+    uid = models.BigIntegerField()
+    name = models.TextField(null=True, blank=True)
+    time = models.DateTimeField(null=True, blank=True)
+    cfiletype = models.IntegerField(null=True, blank=True)
+    cfileindex = models.IntegerField(null=True, blank=True)
+    cfilepos = models.IntegerField(null=True, blank=True)
+    similarity = models.IntegerField(null=True, blank=True)
+    type = models.IntegerField(null=True, blank=True)
+    gender = models.TextField(null=True, blank=True)
+    extra_info = models.TextField(null=True, blank=True)
+    dwfiletype = models.IntegerField(null=True, blank=True)
+    dwfileindex = models.IntegerField(null=True, blank=True)
+    dwfilepos = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"UID: {self.uid}, Name: {self.name}"
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.time, str) and "/" in self.time:
+            self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
+        super(ControlLog, self).save(*args, **kwargs)

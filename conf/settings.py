@@ -1,8 +1,18 @@
 import os
 from pathlib import Path
+# import environ
+import os
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# .env faylini yuklash
+load_dotenv()
+# Initialize environ
+# env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Read environment variables from .env file
+# environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'basic_app'
+    'basic_app',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -126,7 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     BASE_DIR / "static",
 # ]
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
+MEDIA_URL = 'https://face-id.misterdev.uz/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Statik va Media URL
@@ -157,3 +169,36 @@ INTERNAL_IPS = [
     "face-id.misterdev.uz"
 ]
 
+ID_2488986=os.getenv("ID_2488986")
+ID_2488993=os.getenv("ID_2488993")
+ID_2488999=os.getenv("ID_2488999")
+ID_2489002=os.getenv("ID_2489002")
+ID_2489005=os.getenv("ID_2489005")
+ID_2489007=os.getenv("ID_2489007")
+ID_2489012=os.getenv("ID_2489012")
+ID_2489019=os.getenv("ID_2489019")
+username=os.getenv("username")
+password=os.getenv("password")
+
+
+face_ids = {
+    "ID_2488986": os.getenv("ID_2488986"),
+    "ID_2488993": os.getenv("ID_2488993"),
+    "ID_2488999": os.getenv("ID_2488999"),
+    "ID_2489002": os.getenv("ID_2489002"),
+    "ID_2489005": os.getenv("ID_2489005"),
+    "ID_2489007": os.getenv("ID_2489007"),
+    "ID_2489012": os.getenv("ID_2489012"),
+    "ID_2489019": os.getenv("ID_2489019"),
+}
+
+# None bo'lganlarni chiqarib tashlash
+face_ids = {key: value for key, value in face_ids.items() if value is not None}
+# print(
+#     'from seetings', face_ids
+# )
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis broker URL
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
