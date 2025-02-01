@@ -7,6 +7,7 @@ from celery import shared_task
 from django.conf import settings
 from datetime import datetime
 from basic_app.services.get_list_menegement import get_list_management
+from basic_app.services.gen_random import generate_random_number
 from datetime import datetime
 from basic_app.models import UsersManagement
 from basic_app.services.get_user import get_user
@@ -123,6 +124,21 @@ def get_list_management_task():
                         logging.warning(f"⚠️ Missing fields in user data for {name}")
                         continue
 
+                    # Prepare image file name and path
+                    output_file = f"images/{name.replace(' ', '_')}_{k.get('uid', 'unknown')}.jpg"
+                    
+                    # Download image
+                    get_user(
+                        ip=ip,
+                        username="admin",
+                        password="aifu1q2w3e4r@",
+                        ranid=generate_random_number(),
+                        dwfiletype=user_data.get("ITEM0.dwfiletype"),
+                        dwfileindex=user_data.get("ITEM0.dwfileindex"),
+                        dwfilepos=user_data.get("ITEM0.dwfilepos"),
+                        output_file=output_file
+                    )
+
                     # Check if the record already exists before inserting
                     existing_entry = UsersManagement.objects.filter(
                         face_id=face_num,
@@ -145,7 +161,8 @@ def get_list_management_task():
                         dwfiletype=int(k.get('dwfiletype', 0)),
                         dwfileindex=int(k.get('dwfileindex', 0)),
                         dwfilepos=int(k.get('dwfilepos', 0)),
-                        time=timezone.make_aware(datetime.strptime(k.get('utime', "2025-01-01/00:00:00"), "%Y-%m-%d/%H:%M:%S"))
+                        time=timezone.make_aware(datetime.strptime(k.get('utime', "2025-01-01/00:00:00"), "%Y-%m-%d/%H:%M:%S")),
+                        image=output_file  # Save image path
                     )
 
                     logging.info(f"✅ Inserted new user {name} (uid: {k.get('uid', 0)})")
@@ -157,4 +174,5 @@ def get_list_management_task():
 
     except Exception as e:
         logging.error(f"❌ get_list_management_task encountered an error: {e}")
+
         
