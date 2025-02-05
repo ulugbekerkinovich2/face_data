@@ -174,7 +174,7 @@ def handle_stranger_capture(request):
 
             info = data.get("info")
             ip_address = info.get("ip_address")
-            # print('Ip - address', ip_address)
+            print('Ip - address', ip_address)
             print(data)
             # print(data)
             # Validate inputs
