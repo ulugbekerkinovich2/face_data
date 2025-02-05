@@ -7,6 +7,7 @@ from datetime import datetime
 from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
+from django.utils import timezone
 # from django.views.decorators.cache import cache_page
 
 def get_client_ip(request):
@@ -170,10 +171,11 @@ def handle_stranger_capture(request):
         try:
             data = json.loads(request.body)
             base64_image = data.get("SanpPic")
+
             info = data.get("info")
             ip_address = info.get("ip_address")
-            print('stranger', ip_address)
-            print(info)
+            # print('Ip - address', ip_address)
+            print(data)
             # print(data)
             # Validate inputs
             if not base64_image or not info:
@@ -188,7 +190,8 @@ def handle_stranger_capture(request):
 
             # Save StrangerCapture data
             stranger_capture = StrangerCapture(
-                create_time=parse_datetime(info["CreateTime"]),
+                # create_time=parse_datetime(info["CreateTime"]),
+                create_time=timezone.now(),
                 device_id=info["DeviceID"],
                 direction=info["Direction"],
                 picture_type=info["PictureType"],
