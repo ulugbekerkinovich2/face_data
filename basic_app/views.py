@@ -174,8 +174,8 @@ def handle_stranger_capture(request):
 
             info = data.get("info")
             ip_address = info.get("ip_address")
-            print('Ip - address', ip_address)
-            print(data)
+            # print('Ip - address', ip_address)
+            print(info)
             # print(data)
             # Validate inputs
             if not base64_image or not info:
