@@ -220,7 +220,7 @@ from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
 import datetime
-from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush
+from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement
 
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
@@ -238,7 +238,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
         Oxirgi 3 kunlik ma’lumotni keshda saqlash va qaytarish.
         """
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=5)
+        threshold_date = timezone.now() - datetime.timedelta(days=10000)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
@@ -304,3 +304,21 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
     search_fields = ('device_id', 'ic_card_num')
     list_per_page = 100
     time_field = "created_at"
+
+@admin.register(UsersManagement)
+class UsersManagementAdmin(BaseCacheAdmin):
+    list_display = ('face_id', 'name', 'rf_id_card_num','time')
+    search_fields = ('name', 'rf_id_card_num')
+    list_filter = ('face_id',)
+    list_per_page = 100
+    time_field = "time"
+
+    def thumbnail(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height: 100px; width: auto; border-radius: 10px;" />',
+                obj.image.url
+            )
+        return "No Image"
+
+    thumbnail.short_description = "Image Preview"
