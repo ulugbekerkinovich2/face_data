@@ -220,7 +220,7 @@ from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
 import datetime
-from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement
+from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement, ControlLog
 
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
@@ -322,3 +322,20 @@ class UsersManagementAdmin(BaseCacheAdmin):
         return "No Image"
 
     thumbnail.short_description = "Image Preview"
+
+
+@admin.register(ControlLog)
+class ControlLogAdmin(admin.ModelAdmin):
+    list_display = ('uid', 'name', 'face_id', 'face_id_status', 'time', 'similarity')
+    search_fields = ('uid', 'name', 'face_id')
+    list_filter = ('time', 'gender', 'type')
+    list_per_page = 100
+
+    def face_id_status(self, obj):
+        if obj.face_id in IN_DEVICES:
+            return format_html('<span style="color:green; font-weight:bold;">IN</span>')
+        elif obj.face_id in OUT_DEVICES:
+            return format_html('<span style="color:red; font-weight:bold;">OUT</span>')
+        return format_html('<span style="color:gray;">UNKNOWN</span>')
+
+    face_id_status.short_description = "Direction"
