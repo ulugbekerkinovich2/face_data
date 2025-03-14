@@ -26,6 +26,6 @@ app.conf.beat_schedule = {
     },
     'get-control-logs': {
         'task': 'basic_app.tasks.fetch_and_store_control_logs',
-        'schedule': crontab(minute='*/10'),
+        'schedule': crontab(minute='*/20'),
     }
 }
