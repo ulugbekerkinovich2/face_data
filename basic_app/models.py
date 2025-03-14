@@ -1,5 +1,11 @@
 from django.db import models
 from datetime import datetime
+import logging
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from basic_app.services.add_user import add_user
+from basic_app.services.gen_random import generate_random_number
+
 
 class Heartbeat(models.Model):
     device_id = models.IntegerField()
@@ -116,6 +122,7 @@ class UsersManagement(models.Model):
     dwfilepos = models.BigIntegerField(null=True, blank=True)
     time = models.DateTimeField(null=True, blank=True)
     RanId = models.BigIntegerField(null=True, blank=True)
+    image  = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -124,8 +131,54 @@ class UsersManagement(models.Model):
         if isinstance(self.time, str) and "/" in self.time:
             self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
         super(UsersManagement, self).save(*args, **kwargs)
+    class Meta:
+        verbose_name_plural = "Users Management"
+        verbose_name = "User Management"
 
+FACE_ID_DEVICES = {
+    'ID_2488986': '192.168.15.20',
+    'ID_2488993': '192.168.15.27',
+    'ID_2488999': '192.168.15.32',
+    'ID_2489002': '192.168.15.36',
+    'ID_2489005': '192.168.15.39',
+    'ID_2489007': '192.168.15.41',
+    'ID_2489012': '192.168.15.46',
+    'ID_2489019': '192.168.15.53'
+}
 
+@receiver(post_save, sender=UsersManagement)
+def send_user_to_all_devices(sender, instance, created, **kwargs):
+    """
+    When a user is added to UsersManagement, send them to all Face ID devices.
+    """
+    if not created:  # Ensure it runs only when a new record is created
+        return
+
+    logging.info(f"🚀 New User Added: {instance.name} (UID: {instance.uid}) - Syncing to Face ID devices")
+
+    for face_id, ip in FACE_ID_DEVICES.items():
+        try:
+            response = add_user(
+                ip=ip,
+                username="admin",
+                password="aifu1q2w3e4r@",
+                dwfiletype=instance.dwfiletype or 0,
+                dwfileindex=instance.dwfileindex or 1,
+                dwfilepos=instance.dwfilepos or 0,
+                name=instance.name or "Unknown",
+                text=instance.extra_info or "",
+                rfID_card=instance.rf_id_card_num or 1,
+                nRanId=instance.RanId or generate_random_number(),
+                gender=0 if instance.gender == "male" else 1
+            )
+
+            if response.get("status") == 200:
+                logging.info(f"✅ Successfully added {instance.name} to Face ID device {face_id} ({ip})")
+            else:
+                logging.warning(f"⚠️ Failed to add {instance.name} to {face_id} ({ip}): {response.get('message')}")
+
+        except Exception as e:
+            logging.error(f"❌ Error adding {instance.name} to {face_id} ({ip}): {e}")
 
 class StrangerCaptureLog(models.Model):
     face_id = models.IntegerField(null=True, blank=True)
@@ -159,6 +212,9 @@ class ControlLog(models.Model):
     dwfiletype = models.IntegerField(null=True, blank=True)
     dwfileindex = models.IntegerField(null=True, blank=True)
     dwfilepos = models.IntegerField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True, upload_to="controllog")
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    
 
     def __str__(self):
         return f"UID: {self.uid}, Name: {self.name}"
@@ -167,3 +223,5 @@ class ControlLog(models.Model):
         if isinstance(self.time, str) and "/" in self.time:
             self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
         super(ControlLog, self).save(*args, **kwargs)
+    class Meta:
+            unique_together = ('face_id', 'name', 'time')

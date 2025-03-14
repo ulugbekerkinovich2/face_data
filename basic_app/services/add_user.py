@@ -1,6 +1,6 @@
 import requests
-from upload_image import upload_image
-from gen_random import generate_random_number
+from basic_app.services.upload_image import upload_image
+from basic_app.services.gen_random import generate_random_number
 from icecream import ic
 from requests.auth import HTTPBasicAuth
 import re

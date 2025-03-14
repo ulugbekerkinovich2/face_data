@@ -1,8 +1,8 @@
 import requests
 from requests.auth import HTTPBasicAuth
-from gen_random import generate_random_number
+from basic_app.services.gen_random import generate_random_number
 
-def get_user_image(ip, username, password, ranid, dwfiletype, dwfileindex, dwfilepos, output_file="image.jpg"):
+def get_user_image(ip, username, password, ranid, dwfiletype, dwfileindex, dwfilepos, output_file):
     """
     Fetches an image from the given IP using Basic Authentication and saves it to a file.
 

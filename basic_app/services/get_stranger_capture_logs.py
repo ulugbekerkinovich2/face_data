@@ -29,7 +29,7 @@ def fetch_capture_data(ip, username, password, begintime, endtime, utype, sequen
 
     try:
         # Perform the GET request with Basic Authentication
-        response = requests.get(url, auth=HTTPBasicAuth(username, password), timeout=15)
+        response = requests.get(url, auth=HTTPBasicAuth(username, password), timeout=60)
 
         # Check if the request was successful
         response.raise_for_status()

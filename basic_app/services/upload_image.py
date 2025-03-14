@@ -1,5 +1,5 @@
 import requests
-from gen_random import generate_random_number
+from basic_app.services.gen_random import generate_random_number
 
 
 def parse_response(data):
