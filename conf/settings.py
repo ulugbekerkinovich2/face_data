@@ -137,8 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     BASE_DIR / "static",
 # ]
 STATIC_URL = 'static/'
-# MEDIA_URL = '/media/'
-MEDIA_URL = 'https://face-id.misterdev.uz/media/'
+MEDIA_URL = '/media/'
+# MEDIA_URL = 'http://face-admin.misterdev.uz/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Statik va Media URL
