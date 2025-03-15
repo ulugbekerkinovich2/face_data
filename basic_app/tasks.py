@@ -206,12 +206,6 @@ from basic_app.services.get_control_logs import fetch_control_data
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
-
-
-
-
-
 import os
 import json
 import logging
