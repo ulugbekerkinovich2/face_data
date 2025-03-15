@@ -233,7 +233,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 @shared_task
 def fetch_and_store_control_logs():
-    logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
+    logging.info("🚀 Celery Task Started:Fetching full control logs and storing in the database.")
 
     face_ids = {
         'ID_2488986': '192.168.15.20',
