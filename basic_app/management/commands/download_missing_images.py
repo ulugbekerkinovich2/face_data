@@ -1,5 +1,6 @@
 import os
 import requests
+from urllib.parse import quote
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from basic_app.models import ControlLog, UsersManagement, StrangerCapture
@@ -10,15 +11,18 @@ def ensure_image_downloaded(field_file, base_url=None):
         return
 
     file_path = field_file.path
-    file_name = field_file.name
+    file_name = field_file.name.replace('\\', '/')  # Windows path -> Unix-style
 
     if os.path.exists(file_path):
         return
 
+    # URL'ni xavfsiz qilish (masalan: space, %, # bo'lsa)
+    safe_file_name = quote(file_name)
+
     if base_url:
-        url = f"{base_url.rstrip('/')}/{file_name}"
+        url = f"{base_url.rstrip('/')}/{safe_file_name}"
     else:
-        url = f"http://face-admin.misterdev.uz/media/{file_name}"
+        url = f"http://face-admin.misterdev.uz/media/{safe_file_name}"
 
     try:
         print(f"📥 Downloading: {url}")
