@@ -189,7 +189,6 @@ def get_list_management_task():
 
         reqcount, begin_time = 100000, '2024-01-01/00:00:00' 
         end_time = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
-
         image_dir = os.path.join(settings.MEDIA_ROOT, "images")
         os.makedirs(image_dir, exist_ok=True)
 
