@@ -187,7 +187,7 @@ def get_list_management_task():
             'ID_2489019': '192.168.15.53'
         }
 
-        reqcount, begin_time = 100000, '2024-01-01/00:00:00'
+        reqcount, begin_time = 100000, '2024-01-01/00:00:00' 
         end_time = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
 
         image_dir = os.path.join(settings.MEDIA_ROOT, "images")
