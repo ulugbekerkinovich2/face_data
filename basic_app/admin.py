@@ -130,13 +130,15 @@
     
 #     image_preview.short_description = "Image"
 
+import django.db
 from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
 import datetime
 from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement, ControlLog
-
+from django.utils import timezone
+import datetime
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
 
@@ -147,7 +149,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=10000)
+        threshold_date = timezone.now() - datetime.timedelta(days=35)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
@@ -212,7 +214,7 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
     time_field = "created_at"
 
 @admin.register(UsersManagement)
-class UsersManagementAdmin(BaseCacheAdmin):
+class UsersManagementAdmin(admin.ModelAdmin):
     list_display = ('face_id', 'name', 'rf_id_card_num', 'time', 'thumbnail')
     search_fields = ('name', 'rf_id_card_num')
     list_filter = ('face_id',)
@@ -230,12 +232,21 @@ class UsersManagementAdmin(BaseCacheAdmin):
     thumbnail.short_description = "Image"
 
 
+
+
 @admin.register(ControlLog)
-class ControlLogAdmin(admin.ModelAdmin):
+class ControlLogAdmin(BaseCacheAdmin):
     list_display = ('name', 'face_id', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id')
     list_filter = ('time', 'face_id')
     list_per_page = 30
+    ordering = ('-time',)
+
+    def get_queryset(self, request):
+        """Oxirgi 35 kun ichidagi yozuvlarni chiqarish"""
+        qs = super().get_queryset(request)
+        threshold_date = timezone.now() - datetime.timedelta(days=35)
+        return qs.filter(time__gte=threshold_date)  # Faqat 35 kun ichidagi yozuvlar
 
     def face_id_status(self, obj):
         if obj.face_id in IN_DEVICES:
@@ -273,3 +284,4 @@ class ControlLogAdmin(admin.ModelAdmin):
         return format_html(html)
 
     image_comparison.short_description = "User vs Log Image"
+

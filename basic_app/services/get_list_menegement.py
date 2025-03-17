@@ -40,7 +40,7 @@ def get_list_management(ip, reqcount, begin_time, end_time):
     url = (
         f"http://{ip}/webs/getWhitelist?"
         f"action=list&group=LIST&uflag=0&usex=2&uage=0-100&MjCardNo=0&"
-        f"begintime={begin_time}:00&endtime={end_time}&"
+        f"begintime={begin_time}&endtime={end_time}&"
         f"utype=3&sequence=0&beginno=11&reqcount={reqcount}&sessionid=0&RanId={generate_random_number()}"
     )
 

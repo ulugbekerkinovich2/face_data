@@ -21,6 +21,26 @@ from django.core.files.storage import default_storage
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from basic_app.models import ControlLog
+import time
+import os
+import paramiko
+import logging
+from dotenv import load_dotenv
+from celery import shared_task
+
+# .env faylni yuklash (agar ishlatayotgan bo'lsangiz)
+load_dotenv()
+
+# Konfiguratsiya
+SERVER_HOST = os.getenv("SERVER_HOST", "185.217.131.98")
+SERVER_USER = os.getenv("SERVER_USER", "root")
+SSH_KEY_PATH = os.path.expanduser("~/.ssh/id_rsa")
+REMOTE_MEDIA_PATH = "/var/www/workers/face_data_admin/media"
+LOCAL_MEDIA_PATH = "/Users/m3/Documents/face_id_api/media"
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 # Telegram settings
 TOKEN = "7850408357:AAFZ8s4Hqjso5XclrAh6xkblW5sOO9O-X9w"  # Replace with your actual bot token
 CHAT_ID = -1002355350437  # Replace with your actual chat ID
@@ -174,9 +194,18 @@ def get_list_management_task():
         os.makedirs(image_dir, exist_ok=True)
 
         for face_id_, ip in face_ids.items():
-            data = get_list_management(ip, reqcount, begin_time, end_time)
+            attempts = 0
+            data = None
+
+            while attempts < 3 and not data:
+                data = get_list_management(ip, reqcount, begin_time, end_time)
+                if not data:
+                    logging.warning(f"⚠️ Attempt {attempts + 1}: No data received from {ip} for face_id {face_id_}")
+                    attempts += 1
+                    time.sleep(2)  # 2 soniya kutish (tarmoq yoki server bilan muammo bo'lsa)
+
             if not data:
-                logging.warning(f"⚠️ No data received from {ip} for face_id {face_id_}")
+                logging.error(f"❌ Failed to get data from {ip} for face_id {face_id_} after 3 attempts.")
                 continue
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -215,7 +244,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
-
+from datetime import datetime, timedelta
 from basic_app.models import ControlLog
 from basic_app.services.get_user import get_user
 from basic_app.services.get_user_image import get_user_image
@@ -241,7 +270,15 @@ def fetch_and_store_control_logs():
     }
 
     reqcount = 5000
-    begintime = '2024-01-01/00:00:00'
+    now = datetime.now()
+
+    # Oxirgi 10 soatdan boshlab vaqtni hisoblash
+    begintime = now - timedelta(hours=10)
+
+    # Formatlash (YYYY-MM-DD/HH:MM:SS)
+    begintime = begintime.strftime("%Y-%m-%d/%H:%M:%S")
+
+    print("Oxirgi 10 soatdan boshlanadigan vaqt:", begintime)
     endtime = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
 
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "controllog"), exist_ok=True)
@@ -379,3 +416,61 @@ def fetch_and_store_control_logs():
             _ = future.result()
 
     logging.info("✅ Control log task completed.")
+
+
+
+
+@shared_task
+def upload_then_delete_media_via_sftp():
+    """SFTP orqali fayllarni yuklash va muvaffaqiyatli yuklanganlarini o‘chirish."""
+    
+    logger.info("🔄 Fayllarni yuklash jarayoni boshlandi...")
+    
+    try:
+        # **1. SSH ulanish**
+        logger.info("🔌 SSH ulanishni boshlayapmiz...")
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Xavfsizlik: Kalitlarni qabul qilish
+        ssh.connect(SERVER_HOST, username=SERVER_USER, key_filename=SSH_KEY_PATH)
+        logger.info("✅ SSH ulanish muvaffaqiyatli!")
+
+        # **2. SFTP sessiyasini ochish**
+        logger.info("📂 SFTP sessiyasini ochayapmiz...")
+        sftp = ssh.open_sftp()
+        logger.info("✅ SFTP sessiyasi ochildi!")
+
+        # **3. Fayllarni ko‘rib chiqish**
+        for file_name in os.listdir(LOCAL_MEDIA_PATH):
+            local_file = os.path.join(LOCAL_MEDIA_PATH, file_name)
+            remote_file = os.path.join(REMOTE_MEDIA_PATH, file_name)
+
+            if os.path.isfile(local_file):
+                try:
+                    logger.info(f"⬆️ {file_name} yuklanmoqda...")
+                    sftp.put(local_file, remote_file)  # Faylni yuklash
+                    logger.info(f"✅ {file_name} serverga yuklandi!")
+
+                    # **4. Yuklangan fayl hajmini tekshirish**
+                    remote_size = sftp.stat(remote_file).st_size
+                    local_size = os.path.getsize(local_file)
+
+                    # if remote_size == local_size:
+                    #     os.remove(local_file)  # Faqat yuklash muvaffaqiyatli bo‘lsa, o‘chiramiz
+                    #     logger.info(f"🗑️ {file_name} lokalda o‘chirildi!")
+                    # else:
+                    #     logger.warning(f"⚠️ {file_name} fayl hajmi mos kelmadi!")
+
+                except Exception as file_error:
+                    logger.error(f"❌ {file_name} yuklanmadi! Xatolik: {file_error}")
+
+        # **5. SFTP va SSH sessiyalarini yopish**
+        logger.info("📴 SFTP va SSH sessiyalarini yopayapmiz...")
+        sftp.close()
+        ssh.close()
+        logger.info("✅ Barcha sessiyalar yopildi!")
+
+        return "✅ Barcha fayllar yuklandi va lokalda o‘chirildi!"
+
+    except Exception as e:
+        logger.error(f"❌ Xatolik: {str(e)}")
+        return f"❌ Xatolik: {str(e)}"
