@@ -1,14 +1,17 @@
 import base64
+import requests
+import django.dispatch
 import json
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
 from datetime import datetime
-from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture
+from .models import Heartbeat, VerifyPush, ICCardInfoPush, StrangerCapture, ControlLog, UsersManagement
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
 from django.utils import timezone
 # from django.views.decorators.cache import cache_page
+from django.shortcuts import get_object_or_404
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -274,3 +277,58 @@ def handle_alarm_push(request):
         print("Alarm data received:", data)
         return JsonResponse({"status": "success"}, status=200)
     return JsonResponse({"error": "Invalid method"}, status=405)
+
+
+
+
+
+@csrf_exempt
+def update_image_by_id(request):
+    if request.method == 'POST':
+        try:
+            # ID olish
+            record_id = request.POST.get('id')
+            image_file = request.FILES.get('image')
+
+            if not record_id or not image_file:
+                return JsonResponse({'error': 'ID va image fayl yuborilishi kerak'}, status=400)
+
+            # Obyektni olish
+            control_log = get_object_or_404(ControlLog, id=record_id)
+
+            # Rasmni yangilash
+            control_log.image = image_file
+            control_log.save()
+            return JsonResponse({'success': True, 'message': 'Rasm muvaffaqiyatli yangilandi'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Faqat POST so‘rovi qabul qilinadi'}, status=405)
+
+@csrf_exempt
+def update_image_management(request):
+    if request.method == 'POST':
+        try:
+            record_id = request.POST.get("id")
+            image_file = request.FILES.get('image')
+            if not record_id or not image_file:
+                return JsonResponse({
+                    'error': "Users Management uchun id va rasm yuborilishi kerak"
+                })
+            user_management = get_object_or_404(UsersManagement,id=record_id)
+            user_management.image = image_file
+            user_management.save()
+            return JsonResponse({
+                "success": True,
+                "message": "Rasm muvaffaqiyatli yangilandi",
+                "image_url": user_management.image.url
+            })
+        except Exception as e:
+            return JsonResponse({
+                "error": str(e)
+            }, status=500)
+            
+
+
+
+

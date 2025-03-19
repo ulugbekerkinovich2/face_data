@@ -272,12 +272,12 @@ def fetch_and_store_control_logs():
     now = datetime.now()
 
     # Oxirgi 10 soatdan boshlab vaqtni hisoblash
-    begintime = now - timedelta(hours=10)
+    begintime = now - timedelta(hours=2)
 
     # Formatlash (YYYY-MM-DD/HH:MM:SS)
     begintime = begintime.strftime("%Y-%m-%d/%H:%M:%S")
 
-    print("Oxirgi 10 soatdan boshlanadigan vaqt:", begintime)
+    print("Oxirgi 2 soatdan boshlanadigan vaqt:", begintime)
     endtime = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
 
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "controllog"), exist_ok=True)
@@ -338,7 +338,7 @@ def fetch_and_store_control_logs():
                     image_filename = f"{name.replace(' ', '_')}_{log_data.get('uid', 'unknown')}.jpg"
                     image_relative_path = os.path.join("controllog", image_filename)
                     image_absolute_path = os.path.join(settings.MEDIA_ROOT, image_relative_path)
-
+                    
                     user_data = get_user(ip, name)
 
                     get_user_image_log(
@@ -419,57 +419,57 @@ def fetch_and_store_control_logs():
 
 
 
-@shared_task
-def upload_then_delete_media_via_sftp():
-    """SFTP orqali fayllarni yuklash va muvaffaqiyatli yuklanganlarini o‘chirish."""
+# @shared_task
+# def upload_then_delete_media_via_sftp():
+#     """SFTP orqali fayllarni yuklash va muvaffaqiyatli yuklanganlarini o‘chirish."""
     
-    logger.info("🔄 Fayllarni yuklash jarayoni boshlandi...")
+#     logger.info("🔄 Fayllarni yuklash jarayoni boshlandi...")
     
-    try:
-        # **1. SSH ulanish**
-        logger.info("🔌 SSH ulanishni boshlayapmiz...")
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Xavfsizlik: Kalitlarni qabul qilish
-        ssh.connect(SERVER_HOST, username=SERVER_USER, key_filename=SSH_KEY_PATH)
-        logger.info("✅ SSH ulanish muvaffaqiyatli!")
+#     try:
+#         # **1. SSH ulanish**
+#         logger.info("🔌 SSH ulanishni boshlayapmiz...")
+#         ssh = paramiko.SSHClient()
+#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Xavfsizlik: Kalitlarni qabul qilish
+#         ssh.connect(SERVER_HOST, username=SERVER_USER, key_filename=SSH_KEY_PATH)
+#         logger.info("✅ SSH ulanish muvaffaqiyatli!")
 
-        # **2. SFTP sessiyasini ochish**
-        logger.info("📂 SFTP sessiyasini ochayapmiz...")
-        sftp = ssh.open_sftp()
-        logger.info("✅ SFTP sessiyasi ochildi!")
+#         # **2. SFTP sessiyasini ochish**
+#         logger.info("📂 SFTP sessiyasini ochayapmiz...")
+#         sftp = ssh.open_sftp()
+#         logger.info("✅ SFTP sessiyasi ochildi!")
 
-        # **3. Fayllarni ko‘rib chiqish**
-        for file_name in os.listdir(LOCAL_MEDIA_PATH):
-            local_file = os.path.join(LOCAL_MEDIA_PATH, file_name)
-            remote_file = os.path.join(REMOTE_MEDIA_PATH, file_name)
+#         # **3. Fayllarni ko‘rib chiqish**
+#         for file_name in os.listdir(LOCAL_MEDIA_PATH):
+#             local_file = os.path.join(LOCAL_MEDIA_PATH, file_name)
+#             remote_file = os.path.join(REMOTE_MEDIA_PATH, file_name)
 
-            if os.path.isfile(local_file):
-                try:
-                    logger.info(f"⬆️ {file_name} yuklanmoqda...")
-                    sftp.put(local_file, remote_file)  # Faylni yuklash
-                    logger.info(f"✅ {file_name} serverga yuklandi!")
+#             if os.path.isfile(local_file):
+#                 try:
+#                     logger.info(f"⬆️ {file_name} yuklanmoqda...")
+#                     sftp.put(local_file, remote_file)  # Faylni yuklash
+#                     logger.info(f"✅ {file_name} serverga yuklandi!")
 
-                    # **4. Yuklangan fayl hajmini tekshirish**
-                    remote_size = sftp.stat(remote_file).st_size
-                    local_size = os.path.getsize(local_file)
+#                     # **4. Yuklangan fayl hajmini tekshirish**
+#                     remote_size = sftp.stat(remote_file).st_size
+#                     local_size = os.path.getsize(local_file)
 
-                    # if remote_size == local_size:
-                    #     os.remove(local_file)  # Faqat yuklash muvaffaqiyatli bo‘lsa, o‘chiramiz
-                    #     logger.info(f"🗑️ {file_name} lokalda o‘chirildi!")
-                    # else:
-                    #     logger.warning(f"⚠️ {file_name} fayl hajmi mos kelmadi!")
+#                     # if remote_size == local_size:
+#                     #     os.remove(local_file)  # Faqat yuklash muvaffaqiyatli bo‘lsa, o‘chiramiz
+#                     #     logger.info(f"🗑️ {file_name} lokalda o‘chirildi!")
+#                     # else:
+#                     #     logger.warning(f"⚠️ {file_name} fayl hajmi mos kelmadi!")
 
-                except Exception as file_error:
-                    logger.error(f"❌ {file_name} yuklanmadi! Xatolik: {file_error}")
+#                 except Exception as file_error:
+#                     logger.error(f"❌ {file_name} yuklanmadi! Xatolik: {file_error}")
 
-        # **5. SFTP va SSH sessiyalarini yopish**
-        logger.info("📴 SFTP va SSH sessiyalarini yopayapmiz...")
-        sftp.close()
-        ssh.close()
-        logger.info("✅ Barcha sessiyalar yopildi!")
+#         # **5. SFTP va SSH sessiyalarini yopish**
+#         logger.info("📴 SFTP va SSH sessiyalarini yopayapmiz...")
+#         sftp.close()
+#         ssh.close()
+#         logger.info("✅ Barcha sessiyalar yopildi!")
 
-        return "✅ Barcha fayllar yuklandi va lokalda o‘chirildi!"
+#         return "✅ Barcha fayllar yuklandi va lokalda o‘chirildi!"
 
-    except Exception as e:
-        logger.error(f"❌ Xatolik: {str(e)}")
-        return f"❌ Xatolik: {str(e)}"
+#     except Exception as e:
+#         logger.error(f"❌ Xatolik: {str(e)}")
+#         return f"❌ Xatolik: {str(e)}"

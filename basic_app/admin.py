@@ -216,7 +216,7 @@ class ICCardInfoPushAdmin(BaseCacheAdmin):
 @admin.register(UsersManagement)
 class UsersManagementAdmin(admin.ModelAdmin):
     list_display = ('face_id', 'name', 'rf_id_card_num', 'time', 'thumbnail')
-    search_fields = ('name', 'rf_id_card_num')
+    search_fields = ('name', 'rf_id_card_num', 'face_id')
     list_filter = ('face_id',)
     list_per_page = 100
     time_field = "time"
@@ -237,7 +237,7 @@ class UsersManagementAdmin(admin.ModelAdmin):
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
     list_display = ('name', 'face_id', 'face_id_status', 'time', 'image_comparison')
-    search_fields = ('name', 'face_id')
+    search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
     list_per_page = 30
     ordering = ('-time',)

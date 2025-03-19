@@ -75,3 +75,31 @@ def upload_image(ip, file_path):
 #     file_path = "user_image.jpg"
 #     result = upload_image(ip_address, file_path)
 #     print(result)
+
+
+
+def send_image_to_controllog(id: int, image_path: str):
+    url = "https://face-admin.misterdev.uz/update_image_controllog"
+    with open(image_path, 'rb') as img:
+        files = {'image': img}
+        data = {'id': id}
+        response = requests.post(url, data=data, files=files)
+    
+    try:
+        response.raise_for_status()
+        print("✅ Controllog javobi:", response.json())
+    except requests.RequestException as e:
+        print("❌ Xatolik:", e)
+
+def send_image_to_management(id: int, image_path: str):
+    url = "https://face-admin.misterdev.uz/update_image_management"
+    with open(image_path, 'rb') as img:
+        files = {'image': img}
+        data = {'id': id}
+        response = requests.post(url, data=data, files=files)
+
+    try:
+        response.raise_for_status()
+        print("✅ Management javobi:", response.json())
+    except requests.RequestException as e:
+        print("❌ Xatolik:", e)
