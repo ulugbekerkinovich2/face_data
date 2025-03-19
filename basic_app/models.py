@@ -179,12 +179,12 @@ def send_user_to_all_devices(sender, instance, created, **kwargs):
 
         except Exception as e:
             logging.error(f"❌ Error adding {instance.name} to {face_id} ({ip}): {e}")
-    if instance.image:
-        try:
-            image_path = instance.image.path  # Full local path
-            send_image_to_management(instance.id, image_path)
-        except Exception as e:
-            logging.error(f"❌ Image yuborishda xatolik: {e}")
+    # if instance.image:
+    #     try:
+    #         image_path = instance.image.path  # Full local path
+    #         send_image_to_management(instance.id, image_path)
+    #     except Exception as e:
+    #         logging.error(f"❌ Image yuborishda xatolik: {e}")
 
 class StrangerCaptureLog(models.Model):
     face_id = models.IntegerField(null=True, blank=True)
@@ -233,17 +233,17 @@ class ControlLog(models.Model):
             unique_together = ('face_id', 'name', 'time')
 
 
-@receiver(post_save, sender=ControlLog)
-def send_image_after_controllog_save(sender, instance, created, **kwargs):
-    """
-    When a ControlLog is created and has an image, send the image to the API.
-    """
-    if not instance.image:
-        return
+# @receiver(post_save, sender=ControlLog)
+# def send_image_after_controllog_save(sender, instance, created, **kwargs):
+#     """
+#     When a ControlLog is created and has an image, send the image to the API.
+#     """
+#     if not instance.image:
+#         return
 
-    try:
-        image_path = instance.image.path
-        send_image_to_controllog(instance.id, image_path)
-        logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}")
-    except Exception as e:
-        logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
+#     try:
+#         image_path = instance.image.path
+#         send_image_to_controllog(instance.id, image_path)
+#         logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}")
+#     except Exception as e:
+#         logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
