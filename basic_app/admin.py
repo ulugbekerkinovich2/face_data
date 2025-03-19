@@ -109,7 +109,7 @@ class ControlLogAdmin(BaseCacheAdmin):
     list_display = ('id', 'name', 'face_id', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
-    list_per_page = 200
+    list_per_page = 100
     ordering = ('-time',)
 
     def get_queryset(self, request):
