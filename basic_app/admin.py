@@ -8,7 +8,7 @@ import datetime
 from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement, ControlLog
 from django.utils import timezone
 import datetime
-from rangefilter.filters import DateRangeFilter
+# from rangefilter.filters import DateRangeFilter
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
 CACHE_TIMEOUT_SECONDS = 120
@@ -108,7 +108,7 @@ class UsersManagementAdmin(admin.ModelAdmin):
 class ControlLogAdmin(BaseCacheAdmin):
     list_display = ('id', 'name', 'face_id', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
-    list_filter = (('time', DateRangeFilter), 'face_id')
+    list_filter = ('time', 'face_id')
     list_per_page = 200
     ordering = ('-time',)
 
