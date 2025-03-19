@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'basic_app',
     'django_celery_beat',
+    'rangefilter',
+
 ]
 
 MIDDLEWARE = [
