@@ -11,7 +11,7 @@ import datetime
 # from rangefilter.filters import DateRangeFilter
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
-CACHE_TIMEOUT_SECONDS = 120
+CACHE_TIMEOUT_SECONDS = 60
 class BaseCacheAdmin(admin.ModelAdmin):
     cache_key_prefix = "admin_queryset"
     cache_timeout = 5
@@ -113,15 +113,17 @@ class ControlLogAdmin(BaseCacheAdmin):
     ordering = ('-time',)
 
     def get_queryset(self, request):
+        from datetime import timedelta
         """
-        Barcha yozuvlarni olish va queryset’ni 2 daqiqa cache’da saqlash.
+        Oxirgi 20 kun ichidagi yozuvlarni cache bilan olib kelish.
         """
-        cache_key = "controllog_admin_queryset"
+        cache_key = "controllog_admin_queryset_last20days"
         cached_qs = cache.get(cache_key)
         if cached_qs is not None:
             return cached_qs
 
-        qs = super().get_queryset(request).select_related()  # select_related - optimization
+        cutoff_date = timezone.now() - timedelta(days=20)
+        qs = super().get_queryset(request).filter(time__gte=cutoff_date).select_related()
         cache.set(cache_key, qs, CACHE_TIMEOUT_SECONDS)
         return qs
 

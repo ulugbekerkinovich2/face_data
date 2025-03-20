@@ -255,6 +255,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 @shared_task
 def fetch_and_store_control_logs():
+    from datetime import datetime, time  # ✅ bu `datetime.time` klassini beradi
+
+    from django.utils import timezone
     logging.info("🚀 Celery Task Started:Fetching full control logs and storing in the database.")
 
     face_ids = {
@@ -270,15 +273,35 @@ def fetch_and_store_control_logs():
 
     reqcount = 5000
     now = datetime.now()
-
+    
     # Oxirgi 10 soatdan boshlab vaqtni hisoblash
-    begintime = now - timedelta(hours=2)
+    # begintime = now - timedelta(hours=1000)
 
     # Formatlash (YYYY-MM-DD/HH:MM:SS)
-    begintime = begintime.strftime("%Y-%m-%d/%H:%M:%S")
+    # begintime = begintime.strftime("%Y-%m-%d/%H:%M:%S")
+    # begintime = "2025-03-20/00:00:00"
 
-    print("Oxirgi 2 soatdan boshlanadigan vaqt:", begintime)
-    endtime = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
+
+    # endtime = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
+    # endtime = "2025-03-21/00:00:00"
+    today = timezone.localdate()  # bugungi sana (aware)
+    
+
+
+    today = timezone.localdate()  # Bugungi sana (aware)
+
+    # Boshlanish: 00:00:00
+    begintime_dt = timezone.make_aware(datetime.combine(today, time.min))
+
+    # Tugash: 23:59:59.999999
+    endtime_dt = timezone.make_aware(datetime.combine(today, time.max))
+
+    # Formatga o‘tkazish
+    begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+    endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+
+    print("Boshlanish:", begintime)
+    print("Tugash:", endtime)
 
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "controllog"), exist_ok=True)
 

@@ -135,50 +135,50 @@ class UsersManagement(models.Model):
         verbose_name_plural = "Users Management"
         verbose_name = "User Management"
 
-FACE_ID_DEVICES = {
-    'ID_2488986': '192.168.15.20',
-    'ID_2488993': '192.168.15.27',
-    'ID_2488999': '192.168.15.32',
-    'ID_2489002': '192.168.15.36',
-    'ID_2489005': '192.168.15.39',
-    'ID_2489007': '192.168.15.41',
-    'ID_2489012': '192.168.15.46',
-    'ID_2489019': '192.168.15.53'
-}
+# FACE_ID_DEVICES = {
+#     'ID_2488986': '192.168.15.20',
+#     'ID_2488993': '192.168.15.27',
+#     'ID_2488999': '192.168.15.32',
+#     'ID_2489002': '192.168.15.36',
+#     'ID_2489005': '192.168.15.39',
+#     'ID_2489007': '192.168.15.41',
+#     'ID_2489012': '192.168.15.46',
+#     'ID_2489019': '192.168.15.53'
+# }
 
-@receiver(post_save, sender=UsersManagement)
-def send_user_to_all_devices(sender, instance, created, **kwargs):
-    """
-    When a user is added to UsersManagement, send them to all Face ID devices.
-    """
-    if not created:  # Ensure it runs only when a new record is created
-        return
+# @receiver(post_save, sender=UsersManagement)
+# def send_user_to_all_devices(sender, instance, created, **kwargs):
+#     """
+#     When a user is added to UsersManagement, send them to all Face ID devices.
+#     """
+#     if not created:  # Ensure it runs only when a new record is created
+#         return
 
-    logging.info(f"🚀 New User Added: {instance.name} (UID: {instance.uid}) - Syncing to Face ID devices")
+    # logging.info(f"🚀 New User Added: {instance.name} (UID: {instance.uid}) - Syncing to Face ID devices")
 
-    for face_id, ip in FACE_ID_DEVICES.items():
-        try:
-            response = add_user(
-                ip=ip,
-                username="admin",
-                password="aifu1q2w3e4r@",
-                dwfiletype=instance.dwfiletype or 0,
-                dwfileindex=instance.dwfileindex or 1,
-                dwfilepos=instance.dwfilepos or 0,
-                name=instance.name or "Unknown",
-                text=instance.extra_info or "",
-                rfID_card=instance.rf_id_card_num or 1,
-                nRanId=instance.RanId or generate_random_number(),
-                gender=0 if instance.gender == "male" else 1
-            )
+    # for face_id, ip in FACE_ID_DEVICES.items():
+    #     try:
+    #         response = add_user(
+    #             ip=ip,
+    #             username="admin",
+    #             password="aifu1q2w3e4r@",
+    #             dwfiletype=instance.dwfiletype or 0,
+    #             dwfileindex=instance.dwfileindex or 1,
+    #             dwfilepos=instance.dwfilepos or 0,
+    #             name=instance.name or "Unknown",
+    #             text=instance.extra_info or "",
+    #             rfID_card=instance.rf_id_card_num or 1,
+    #             nRanId=instance.RanId or generate_random_number(),
+    #             gender=0 if instance.gender == "male" else 1
+    #         )
 
-            if response.get("status") == 200:
-                logging.info(f"✅ Successfully added {instance.name} to Face ID device {face_id} ({ip})")
-            else:
-                logging.warning(f"⚠️ Failed to add {instance.name} to {face_id} ({ip}): {response.get('message')}")
+    #         if response.get("status") == 200:
+    #             logging.info(f"✅ Successfully added {instance.name} to Face ID device {face_id} ({ip})")
+    #         else:
+    #             logging.warning(f"⚠️ Failed to add {instance.name} to {face_id} ({ip}): {response.get('message')}")
 
-        except Exception as e:
-            logging.error(f"❌ Error adding {instance.name} to {face_id} ({ip}): {e}")
+    #     except Exception as e:
+    #         logging.error(f"❌ Error adding {instance.name} to {face_id} ({ip}): {e}")
     # if instance.image:
     #     try:
     #         image_path = instance.image.path  # Full local path
@@ -233,17 +233,16 @@ class ControlLog(models.Model):
             unique_together = ('face_id', 'name', 'time')
 
 
-# @receiver(post_save, sender=ControlLog)
-# def send_image_after_controllog_save(sender, instance, created, **kwargs):
-#     """
-#     When a ControlLog is created and has an image, send the image to the API.
-#     """
-#     if not instance.image:
-#         return
-
-#     try:
-#         image_path = instance.image.path
-#         send_image_to_controllog(instance.id, image_path)
-#         logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}")
-#     except Exception as e:
-#         logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
+@receiver(post_save, sender=ControlLog)
+def send_image_after_controllog_save(sender, instance, created, **kwargs):
+    """
+    When a ControlLog is created or updated, and has an image, send the image to the API.
+    """
+    # Hatto update bo‘lsa ham, image bo‘lsa yuboramiz
+    if instance.image:
+        try:
+            image_path = instance.image.path
+            send_image_to_controllog(instance.id, image_path)
+            logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}, created={created}")
+        except Exception as e:
+            logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
