@@ -122,7 +122,7 @@ class ControlLogAdmin(BaseCacheAdmin):
         if cached_qs is not None:
             return cached_qs
 
-        cutoff_date = timezone.now() - timedelta(days=20)
+        cutoff_date = timezone.now() - timedelta(days=31)
         qs = super().get_queryset(request).filter(time__gte=cutoff_date).select_related()
         cache.set(cache_key, qs, CACHE_TIMEOUT_SECONDS)
         return qs
