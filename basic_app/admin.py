@@ -46,42 +46,42 @@ class BaseCacheAdmin(admin.ModelAdmin):
 #     time_field = "time"
 
 
-@admin.register(VerifyPush)
-class VerifyPushAdmin(BaseCacheAdmin):
-    list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
-    search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
-    list_filter = ('create_time',)
-    list_per_page = 25
-    time_field = "create_time"
+# @admin.register(VerifyPush)
+# class VerifyPushAdmin(BaseCacheAdmin):
+#     list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
+#     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
+#     list_filter = ('create_time',)
+#     list_per_page = 25
+#     time_field = "create_time"
 
 
-@admin.register(StrangerCapture)
-class StrangerCaptureAdmin(BaseCacheAdmin):
-    list_display = (
-        'device_id', 'movement', 'create_time', 'thumbnail',
-    )
-    list_filter = ("create_time",)
-    search_fields = ('device_id', 'operator', 'ip_address')
-    list_per_page = 25
-    time_field = "create_time"
+# @admin.register(StrangerCapture)
+# class StrangerCaptureAdmin(BaseCacheAdmin):
+#     list_display = (
+#         'device_id', 'movement', 'create_time', 'thumbnail',
+#     )
+#     list_filter = ("create_time",)
+#     search_fields = ('device_id', 'operator', 'ip_address')
+#     list_per_page = 25
+#     time_field = "create_time"
 
-    def thumbnail(self, obj):
-        if obj.image_file:
-            return format_html(
-                '<img src="{}" style="height: 135px; width: auto; border-radius: 10px;" />',
-                obj.image_file.url
-            )
-        return "No Image"
+#     def thumbnail(self, obj):
+#         if obj.image_file:
+#             return format_html(
+#                 '<img src="{}" style="height: 135px; width: auto; border-radius: 10px;" />',
+#                 obj.image_file.url
+#             )
+#         return "No Image"
 
-    thumbnail.short_description = "Image Preview"
+#     thumbnail.short_description = "Image Preview"
 
 
-@admin.register(ICCardInfoPush)
-class ICCardInfoPushAdmin(BaseCacheAdmin):
-    list_display = ('device_id', 'movement', 'ic_card_num', 'created_at', 'ip_address')
-    search_fields = ('device_id', 'ic_card_num')
-    list_per_page = 25
-    time_field = "created_at"
+# @admin.register(ICCardInfoPush)
+# class ICCardInfoPushAdmin(BaseCacheAdmin):
+#     list_display = ('device_id', 'movement', 'ic_card_num', 'created_at', 'ip_address')
+#     search_fields = ('device_id', 'ic_card_num')
+#     list_per_page = 25
+#     time_field = "created_at"
 
 @admin.register(UsersManagement)
 class UsersManagementAdmin(admin.ModelAdmin):
