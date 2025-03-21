@@ -166,7 +166,6 @@
 #     image_comparison.short_description = "User vs Log Image"
 
 
-
 from django.core.cache import cache
 from django.utils.html import format_html
 from django.utils import timezone
@@ -211,12 +210,12 @@ class BaseCacheAdmin(admin.ModelAdmin):
     movement.short_description = "Movement Direction"
 
 
-@admin.register(Heartbeat)
-class HeartbeatAdmin(BaseCacheAdmin):
-    list_display = ('device_id', 'movement', 'ip_address', 'time')
-    search_fields = ('device_id',)
-    list_per_page = 50
-    time_field = "time"
+# @admin.register(Heartbeat)
+# class HeartbeatAdmin(BaseCacheAdmin):
+#     list_display = ('device_id', 'movement', 'ip_address', 'time')
+#     search_fields = ('device_id',)
+#     list_per_page = 50
+#     time_field = "time"
 
 
 @admin.register(VerifyPush)
@@ -239,7 +238,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     def thumbnail(self, obj):
         if obj.image_file:
             return format_html(
-                '<img src="{}" style="height: 100px; width: auto; border-radius: 8px;" />',
+                '<img src="{}" style="height: 80px; width: auto; border-radius: 8px; object-fit:cover; filter: blur(0.3px); image-rendering: -webkit-optimize-contrast;" />',
                 obj.image_file.url
             )
         return "No Image"
@@ -265,13 +264,12 @@ class UsersManagementAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         if obj.image:
             return format_html(
-                '<img src="{}" style="height: 80px; width: auto; border-radius: 6px;" />',
+                '<img src="{}" style="height: 60px; width: auto; border-radius: 6px; object-fit:cover; filter: blur(0.3px); image-rendering: -webkit-optimize-contrast;" />',
                 obj.image.url
             )
         return "No Image"
 
     thumbnail.short_description = "Image"
-
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
@@ -288,7 +286,7 @@ class ControlLogAdmin(BaseCacheAdmin):
         if cached_qs is not None:
             return cached_qs
 
-        cutoff_date = timezone.now() - datetime.timedelta(days=20)
+        cutoff_date = timezone.now() - datetime.timedelta(days=30)
         qs = super().get_queryset(request).filter(time__gte=cutoff_date).only(
             "id", "name", "face_id", "time", "image"
         )
@@ -307,26 +305,27 @@ class ControlLogAdmin(BaseCacheAdmin):
     def image_comparison(self, obj):
         from basic_app.models import UsersManagement
 
+        def shrink_img_with_link(url):
+            return format_html(
+                '<a href="{}" target="_blank">'
+                '<img src="{}" loading="lazy" width="50" height="50" '
+                'style="object-fit:cover;border-radius:5px;filter: blur(0.3px);image-rendering: -webkit-optimize-contrast;" />'
+                '</a>',
+                url, url
+            )
+
         try:
-            user = UsersManagement.objects.only("name", "image").filter(name=obj.name).first()
-            user_img_url = user.image.url if user and user.image else ""
+            user = UsersManagement.objects.only("image").filter(name=obj.name).first()
+            user_img = shrink_img_with_link(user.image.url) if user and user.image else None
         except:
-            user_img_url = ""
+            user_img = None
 
-        control_img_url = obj.image.url if obj.image else ""
+        log_img = shrink_img_with_link(obj.image.url) if obj.image else None
 
-        html = ""
-
-        if user_img_url:
-            html += f'<img src="{user_img_url}" width="60" height="60" style="object-fit:cover; border-radius:6px; margin-right:4px;" />'
-        else:
-            html += '<div style="width:75px;height:75px;display:inline-block;background:#eee;border-radius:6px;line-height:75px;text-align:center;color:#999;font-size:12px;">No User</div>'
-
-        if control_img_url:
-            html += f'<img src="{control_img_url}" width="60" height="60" style="object-fit:cover; border-radius:6px; margin-left:4px;" />'
-        else:
-            html += '<div style="width:75px;height:75px;display:inline-block;background:#fdd;border-radius:6px;line-height:75px;text-align:center;color:#900;font-weight:bold;font-size:12px; margin-left:4px;">Empty</div>'
-
-        return format_html(html)
+        return format_html(
+            '{} {}',
+            user_img or '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">No User</div>',
+            log_img or '<div style="width:50px;height:50px;background:#fdd;border-radius:5px;line-height:50px;text-align:center;color:#900;font-size:10px;font-weight:bold;margin-left:5px;display:inline-block;">Empty</div>'
+        )
 
     image_comparison.short_description = "User vs Log Image"
