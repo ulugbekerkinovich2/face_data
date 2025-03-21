@@ -51,7 +51,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
     list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     list_filter = ('create_time',)
-    list_per_page = 100
+    list_per_page = 25
     time_field = "create_time"
 
 
@@ -62,7 +62,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     )
     list_filter = ("create_time",)
     search_fields = ('device_id', 'operator', 'ip_address')
-    list_per_page = 100
+    list_per_page = 25
     time_field = "create_time"
 
     def thumbnail(self, obj):
@@ -80,7 +80,7 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
 class ICCardInfoPushAdmin(BaseCacheAdmin):
     list_display = ('device_id', 'movement', 'ic_card_num', 'created_at', 'ip_address')
     search_fields = ('device_id', 'ic_card_num')
-    list_per_page = 100
+    list_per_page = 25
     time_field = "created_at"
 
 @admin.register(UsersManagement)
@@ -88,7 +88,7 @@ class UsersManagementAdmin(admin.ModelAdmin):
     list_display = ('face_id', 'name', 'rf_id_card_num', 'time', 'thumbnail')
     search_fields = ('name', 'rf_id_card_num', 'face_id')
     list_filter = ('face_id',)
-    list_per_page = 100
+    list_per_page = 25
     time_field = "time"
 
     def thumbnail(self, obj):
@@ -109,7 +109,7 @@ class ControlLogAdmin(BaseCacheAdmin):
     list_display = ('id', 'name', 'face_id', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
-    list_per_page = 100
+    list_per_page = 25
     ordering = ('-time',)
 
     def get_queryset(self, request):
