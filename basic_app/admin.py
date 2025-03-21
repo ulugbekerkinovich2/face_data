@@ -106,22 +106,23 @@ class UsersManagementAdmin(admin.ModelAdmin):
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
-    list_display = ('name', 'face_id_status', 'time', 'image_comparison')
+    list_display = ('id', 'name', 'face_id', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
-    list_per_page = 10
+    list_per_page = 100
     ordering = ('-time',)
     time_field = "time"
 
     def get_queryset(self, request):
-        from datetime import timedelta
         cache_key = "controllog_admin_queryset_last20days"
         cached_qs = cache.get(cache_key)
         if cached_qs is not None:
             return cached_qs
 
-        cutoff_date = timezone.now() - timedelta(days=5)
-        qs = super().get_queryset(request).filter(time__gte=cutoff_date).only("id", "name", "face_id", "time", "image")
+        cutoff_date = timezone.now() - datetime.timedelta(days=30)
+        qs = super().get_queryset(request).filter(time__gte=cutoff_date).only(
+            "id", "name", "face_id", "time", "image"
+        )
         cache.set(cache_key, qs, CACHE_TIMEOUT_SECONDS)
         return qs
 
@@ -135,22 +136,32 @@ class ControlLogAdmin(BaseCacheAdmin):
     face_id_status.short_description = "Direction"
 
     def image_comparison(self, obj):
-        def shrink_img(url):
-            return f'<img src="{url}" loading="lazy" width="50" height="50" style="object-fit:cover; border-radius:6px;" />'
+        from basic_app.models import UsersManagement
 
+        def shrink_img_with_link(url):
+            return format_html(
+                '<a href="{}" target="_blank">'
+                '<img src="{}" loading="lazy" width="80" height="80" '
+                'style="object-fit:cover;border-radius:5px;filter: blur(0.3px);image-rendering: -webkit-optimize-contrast;" />'
+                '</a>',
+                url, url
+            )
 
-        control_img_url = obj.image.url if obj.image else None
+        try:
+            user = UsersManagement.objects.only("image").filter(name=obj.name).first()
+            user_img = shrink_img_with_link(user.image.url) if user and user.image else None
+        except:
+            user_img = None
 
-        html = ""
+        log_img = shrink_img_with_link(obj.image.url) if obj.image else None
 
-        if control_img_url:
-            html += shrink_img(control_img_url)
-        else:
-            html += '<div style="width:50px;height:50px;display:inline-block;background:#fdd;border-radius:6px;line-height:50px;text-align:center;color:#900;font-weight:bold;font-size:10px;margin-left:5px;">Empty</div>'
+        return format_html(
+            '{} {}',
+            user_img or '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">No User</div>',
+            log_img or '<div style="width:50px;height:50px;background:#fdd;border-radius:5px;line-height:50px;text-align:center;color:#900;font-size:10px;font-weight:bold;margin-left:5px;display:inline-block;">Empty</div>'
+        )
 
-        return format_html(html)
-
-    # image_comparison.short_description = "User vs Log Image"
+    image_comparison.short_description = "User vs Log Image"
 
 
 # from django.core.cache import cache
