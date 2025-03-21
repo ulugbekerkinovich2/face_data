@@ -11,7 +11,7 @@ import datetime
 # from rangefilter.filters import DateRangeFilter
 IN_DEVICES = [2489019, 2489007, 2489005, 2488986]
 OUT_DEVICES = [2489002, 2489012, 2488993, 2488999]
-CACHE_TIMEOUT_SECONDS = 60
+CACHE_TIMEOUT_SECONDS = 120
 class BaseCacheAdmin(admin.ModelAdmin):
     cache_key_prefix = "admin_queryset"
     cache_timeout = 5
