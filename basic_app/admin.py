@@ -111,19 +111,17 @@ class ControlLogAdmin(BaseCacheAdmin):
     list_filter = ('time', 'face_id')
     list_per_page = 25
     ordering = ('-time',)
+    time_field = "time"
 
     def get_queryset(self, request):
         from datetime import timedelta
-        """
-        Oxirgi 20 kun ichidagi yozuvlarni cache bilan olib kelish.
-        """
         cache_key = "controllog_admin_queryset_last20days"
         cached_qs = cache.get(cache_key)
         if cached_qs is not None:
             return cached_qs
 
         cutoff_date = timezone.now() - timedelta(days=31)
-        qs = super().get_queryset(request).filter(time__gte=cutoff_date).select_related()
+        qs = super().get_queryset(request).filter(time__gte=cutoff_date).only("id", "name", "face_id", "time", "image")
         cache.set(cache_key, qs, CACHE_TIMEOUT_SECONDS)
         return qs
 
@@ -137,33 +135,22 @@ class ControlLogAdmin(BaseCacheAdmin):
     face_id_status.short_description = "Direction"
 
     def image_comparison(self, obj):
-        from basic_app.models import UsersManagement
+        def shrink_img(url):
+            return f'<img src="{url}" loading="lazy" width="50" height="50" style="object-fit:cover; border-radius:6px;" />'
 
-        user_img_url = ""
-        try:
-            user = UsersManagement.objects.filter(name=obj.name).first()
-            if user and user.image:
-                user_img_url = user.image.url
-        except:
-            pass
 
-        control_img_url = obj.image.url if obj.image else ""
+        control_img_url = obj.image.url if obj.image else None
 
         html = ""
 
-        if user_img_url:
-            html += f'<img src="{user_img_url}" width="50" height="50" style="object-fit:cover; border-radius:6px; margin-right:5px;" />'
-        else:
-            html += '<div style="width:75px;height:75px;display:inline-block;background:#eee;border-radius:6px;line-height:75px;text-align:center;color:#999;font-size:12px;">No User</div>'
-
         if control_img_url:
-            html += f'<img src="{control_img_url}" width="50" height="50" style="object-fit:cover; border-radius:6px; margin-left:5px;" />'
+            html += shrink_img(control_img_url)
         else:
-            html += '<div style="width:75px;height:75px;display:inline-block;background:#fdd;border-radius:6px;line-height:75px;text-align:center;color:#900;font-weight:bold;font-size:12px; margin-left:5px;">Empty</div>'
+            html += '<div style="width:50px;height:50px;display:inline-block;background:#fdd;border-radius:6px;line-height:50px;text-align:center;color:#900;font-weight:bold;font-size:10px;margin-left:5px;">Empty</div>'
 
         return format_html(html)
 
-    image_comparison.short_description = "User vs Log Image"
+    # image_comparison.short_description = "User vs Log Image"
 
 
 # from django.core.cache import cache
