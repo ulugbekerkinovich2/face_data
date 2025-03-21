@@ -233,16 +233,18 @@ class ControlLog(models.Model):
             unique_together = ('face_id', 'name', 'time')
 
 
+import threading
+
 @receiver(post_save, sender=ControlLog)
 def send_image_after_controllog_save(sender, instance, created, **kwargs):
-    """
-    When a ControlLog is created or updated, and has an image, send the image to the API.
-    """
-    # Hatto update bo‘lsa ham, image bo‘lsa yuboramiz
     if instance.image:
-        try:
-            image_path = instance.image.path
-            send_image_to_controllog(instance.id, image_path)
-            logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}, created={created}")
-        except Exception as e:
-            logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
+        def async_send():
+            try:
+                image_path = instance.image.path
+                send_image_to_controllog(instance.id, image_path)
+                logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}, created={created}")
+            except Exception as e:
+                logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
+
+        threading.Thread(target=async_send).start()
+
