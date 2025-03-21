@@ -106,10 +106,10 @@ class UsersManagementAdmin(admin.ModelAdmin):
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
-    list_display = ('id', 'name', 'face_id', 'face_id_status', 'time', 'image_comparison')
+    list_display = ('name', 'face_id_status', 'time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
-    list_per_page = 25
+    list_per_page = 10
     ordering = ('-time',)
     time_field = "time"
 
