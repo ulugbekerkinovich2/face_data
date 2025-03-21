@@ -249,16 +249,19 @@ from basic_app.services.get_user import get_user
 from basic_app.services.get_user_image import get_user_image
 from basic_app.services.gen_random import generate_random_number
 from basic_app.services.get_control_logs import fetch_all_control_data
-
+from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
+
+
+
+
 
 
 @shared_task
 def fetch_and_store_control_logs():
-    from datetime import datetime, time  # ✅ bu `datetime.time` klassini beradi
-
-    from django.utils import timezone
-    logging.info("🚀 Celery Task Started:Fetching full control logs and storing in the database.")
+    logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
 
     face_ids = {
         'ID_2488986': '192.168.15.20',
@@ -272,36 +275,35 @@ def fetch_and_store_control_logs():
     }
 
     reqcount = 5000
-    now = datetime.now()
-    
-    # Oxirgi 10 soatdan boshlab vaqtni hisoblash
-    # begintime = now - timedelta(hours=1000)
+    LAST_RUN_FILE = Path('last_run.txt')
 
-    # Formatlash (YYYY-MM-DD/HH:MM:SS)
-    # begintime = begintime.strftime("%Y-%m-%d/%H:%M:%S")
-    # begintime = "2025-03-20/00:00:00"
+    # ⏱️ Oldingi ishga tushgan vaqtni olish
+    if LAST_RUN_FILE.exists():
+        with open(LAST_RUN_FILE, 'r') as f:
+            last_run_str = f.read().strip()
+            begintime_dt = datetime.fromisoformat(last_run_str)
+            begintime_dt = timezone.make_aware(begintime_dt)
+    else:
+        # Fayl yo‘q bo‘lsa, bugun 00:00:00 dan boshlaymiz
+        today = timezone.localdate()
+        begintime_dt = timezone.make_aware(datetime.combine(today, datetime.min.time()))
 
+    # 🔁 Hozirgi vaqtni olish
+    endtime_dt = timezone.now()
 
-    # endtime = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
-    # endtime = "2025-03-21/00:00:00"
-    today = timezone.localdate()  # bugungi sana (aware)
-    
+    # 📝 Yangi vaqtni faylga saqlash
+    with open(LAST_RUN_FILE, 'w') as f:
+        f.write(endtime_dt.isoformat())
 
-
-    today = timezone.localdate()  # Bugungi sana (aware)
-
-    # Boshlanish: 00:00:00
-    begintime_dt = timezone.make_aware(datetime.combine(today, time.min))
-
-    # Tugash: 23:59:59.999999
-    endtime_dt = timezone.make_aware(datetime.combine(today, time.max))
-
-    # Formatga o‘tkazish
+    # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
     endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
 
-    print("Boshlanish:", begintime)
-    print("Tugash:", endtime)
+    print("📌 Boshlanish:", begintime)
+    print("📌 Tugash:", endtime)
+
+
+
 
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "controllog"), exist_ok=True)
 
