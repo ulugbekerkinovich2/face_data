@@ -83,7 +83,7 @@ def send_image_to_controllog(id: int, image_path: str):
     with open(image_path, 'rb') as img:
         files = {'image': img}
         data = {'id': id}
-        response = requests.post(url, data=data, files=files)
+        response = requests.post(url, data=data, files=files, timeout=90)
     
     try:
         response.raise_for_status()
