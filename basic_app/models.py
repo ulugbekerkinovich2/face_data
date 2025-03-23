@@ -140,16 +140,31 @@ class UsersManagement(models.Model):
 def update_user_image(sender, instance, created, **kwargs):
     """
     When a user is created or updated, send their image to all Face ID devices if available.
+    Runs in a separate thread to prevent blocking.
     """
     action = "Created" if created else "Updated"
     logging.info(f"🚀 User {action}: {instance.name} (UID: {instance.uid}) - Syncing image to Face ID devices")
 
-    if instance.image:
+    if not instance.image:
+        logging.warning(f"⚠️ User '{instance.name}' uchun rasm mavjud emas")
+        return
+
+    def async_send():
         try:
             image_path = instance.image.path
+
+            # ✅ Fayl mavjudligini tekshirish
+            if not os.path.exists(image_path):
+                logging.warning(f"❌ Foydalanuvchi rasmi topilmadi: {image_path}")
+                return
+
             send_image_to_management(instance.id, image_path)
+            logging.info(f"📤 User rasmi yuborildi: {instance.name} (ID={instance.id})")
+
         except Exception as e:
-            logging.error(f"❌ Error sending image: {e}")
+            logging.error(f"❌ User rasmi yuborishda xatolik: {e}")
+
+    threading.Thread(target=async_send).start()
 
 
 class StrangerCaptureLog(models.Model):
