@@ -103,6 +103,14 @@ class UsersManagementAdmin(admin.ModelAdmin):
 
 
 
+from django.contrib import admin
+from django.utils import timezone
+from django.utils.html import format_html
+from django.core.cache import cache
+import datetime
+
+from .models import ControlLog
+from basic_app.models import UsersManagement
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
@@ -127,8 +135,10 @@ class ControlLogAdmin(BaseCacheAdmin):
         return qs
 
     def formatted_time(self, obj):
-        return obj.time.strftime("%Y-%m-%d %H:%M:%S")
+        # Timezone bilan birga, 24-soatlik formatda ko'rsatadi
+        return timezone.localtime(obj.time).strftime("%Y-%m-%d %H:%M:%S")
     formatted_time.short_description = "Time"
+    formatted_time.admin_order_field = "time"
 
     def face_id_status(self, obj):
         if obj.face_id in IN_DEVICES:
@@ -139,8 +149,6 @@ class ControlLogAdmin(BaseCacheAdmin):
     face_id_status.short_description = "Direction"
 
     def image_comparison(self, obj):
-        from basic_app.models import UsersManagement
-
         def shrink_img_with_link(url):
             return format_html(
                 '<a href="{}" target="_blank">'
@@ -150,11 +158,11 @@ class ControlLogAdmin(BaseCacheAdmin):
                 url, url
             )
 
-        # Default placeholders
+        # Placeholderlar
         empty_user = '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">No User</div>'
         empty_log = '<div style="width:50px;height:50px;background:#fdd;border-radius:5px;line-height:50px;text-align:center;color:#900;font-size:10px;font-weight:bold;margin-left:5px;display:inline-block;">Empty</div>'
 
-        # User image
+        # User rasmi
         try:
             user = UsersManagement.objects.only("image").filter(name=obj.name).first()
             if user and user.image and user.image.name:
@@ -165,7 +173,7 @@ class ControlLogAdmin(BaseCacheAdmin):
             print(f"[image_comparison] User image error for '{obj.name}': {e}")
             user_img = empty_user
 
-        # Log image
+        # Log rasmi
         try:
             if obj.image and obj.image.name:
                 log_img = shrink_img_with_link(obj.image.url)
