@@ -114,7 +114,7 @@ from basic_app.models import UsersManagement
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
-    list_display = ('id', 'name', 'face_id', 'face_id_status', 'formatted_time', 'image_comparison')
+    list_display = ('id', 'name', 'face_id','similarity', 'face_id_status', 'formatted_time', 'image_comparison')
     search_fields = ('name', 'face_id', 'uid', 'id')
     list_filter = ('time', 'face_id')
     list_per_page = 100
@@ -148,6 +148,9 @@ class ControlLogAdmin(BaseCacheAdmin):
         return format_html('<span style="color:gray;">UNKNOWN</span>')
     face_id_status.short_description = "Direction"
 
+    from django.utils.html import format_html
+    import os
+
     def image_comparison(self, obj):
         def shrink_img_with_link(url):
             return format_html(
@@ -158,11 +161,10 @@ class ControlLogAdmin(BaseCacheAdmin):
                 url, url
             )
 
-        # Placeholderlar
-        empty_user = '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">No User</div>'
+        empty_user = '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">Empty</div>'
         empty_log = '<div style="width:50px;height:50px;background:#fdd;border-radius:5px;line-height:50px;text-align:center;color:#900;font-size:10px;font-weight:bold;margin-left:5px;display:inline-block;">Empty</div>'
 
-        # User rasmi
+        # 👤 User rasmi
         try:
             user = UsersManagement.objects.only("image").filter(name=obj.name).first()
             if user and user.image and user.image.name:
@@ -173,10 +175,14 @@ class ControlLogAdmin(BaseCacheAdmin):
             print(f"[image_comparison] User image error for '{obj.name}': {e}")
             user_img = empty_user
 
-        # Log rasmi
+        # 📷 Log rasmi — fayl mavjudligini tekshiramiz
         try:
             if obj.image and obj.image.name:
-                log_img = shrink_img_with_link(obj.image.url)
+                image_path = obj.image.path
+                if os.path.exists(image_path):
+                    log_img = shrink_img_with_link(obj.image.url)
+                else:
+                    log_img = empty_log
             else:
                 log_img = empty_log
         except Exception as e:
@@ -185,7 +191,6 @@ class ControlLogAdmin(BaseCacheAdmin):
 
         return format_html('{} {}', user_img, log_img)
 
-    image_comparison.short_description = "User vs Log Image"
 
 
 
