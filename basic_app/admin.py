@@ -19,7 +19,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=35)
+        threshold_date = timezone.now() - datetime.timedelta(days=90)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
