@@ -133,7 +133,7 @@ class ControlLogAdmin(BaseCacheAdmin):
         if cached_qs is not None:
             return cached_qs
 
-        cutoff_date = timezone.now() - datetime.timedelta(days=30)
+        cutoff_date = timezone.now() - datetime.timedelta(days=90)
         qs = super().get_queryset(request).filter(time__gte=cutoff_date).only(
             "id", "name", "face_id", "time", "image"
         )
