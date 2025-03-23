@@ -48,11 +48,17 @@ class HeartbeatAdmin(BaseCacheAdmin):
 
 @admin.register(VerifyPush)
 class VerifyPushAdmin(BaseCacheAdmin):
-    list_display = ('person_id', 'device_id', 'movement', 'name', 'create_time')
+    list_display = ('person_id', 'device_id', 'movement', 'name', 'formatted_create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     list_filter = ('create_time',)
     list_per_page = 25
     time_field = "create_time"
+
+    def formatted_create_time(self, obj):
+        return timezone.localtime(obj.create_time).strftime("%Y-%m-%d %H:%M:%S")
+    formatted_create_time.short_description = "Time"
+    formatted_create_time.admin_order_field = "create_time"
+
 
 
 @admin.register(StrangerCapture)
