@@ -170,7 +170,7 @@ class ControlLogAdmin(BaseCacheAdmin):
             if user and user.image and user.image.name:
                 user_img = shrink_img_with_link(user.image.url)
             else:
-                user_img = empty_user
+                user_img = None
         except Exception as e:
             print(f"[image_comparison] User image error for '{obj.name}': {e}")
             user_img = empty_user
@@ -182,7 +182,7 @@ class ControlLogAdmin(BaseCacheAdmin):
                 if os.path.exists(image_path):
                     log_img = shrink_img_with_link(obj.image.url)
                 else:
-                    log_img = empty_log
+                    log_img = None
             else:
                 log_img = empty_log
         except Exception as e:
