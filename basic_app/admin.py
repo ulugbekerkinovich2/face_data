@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
 import datetime
-from .models import Heartbeat, VerifyPush, StrangerCapture, ICCardInfoPush, UsersManagement, ControlLog
+from .models import (ControlLog, Heartbeat, ICCardInfoPush, StrangerCapture, UserRole,
+    UsersManagement, VerifyPush)
 from django.utils import timezone
 import datetime
 # from rangefilter.filters import DateRangeFilter
@@ -68,15 +69,18 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
     )
     list_filter = ("create_time",)
     search_fields = ('device_id', 'operator', 'ip_address')
-    list_per_page = 25
+    list_per_page = 100
     time_field = "create_time"
 
     def thumbnail(self, obj):
         if obj.image_file:
+            original_url = obj.image_file.url
+            custom_url = original_url.replace("http://face-admin.misterdev.uz", "https://face-id.misterdev.uz")
             return format_html(
-                '<img src="{}" style="height: 135px; width: auto; border-radius: 10px;" />',
-                obj.image_file.url
+                '<img src="{}" style="height: 120px; width: 120px; object-fit: cover; border-radius: 10px;" />',
+                custom_url
             )
+
         return "No Image"
 
     thumbnail.short_description = "Image Preview"
@@ -117,20 +121,56 @@ import datetime
 import os
 from .models import ControlLog
 from basic_app.models import UsersManagement
+from django.contrib.admin import SimpleListFilter
+class RoleFromUserRoleFilter(SimpleListFilter):
+    title = 'Role'
+    parameter_name = 'userrole__role'
+
+    def lookups(self, request, model_admin):
+        roles = UserRole.objects.values_list('role', flat=True).distinct()
+        return [(role, role) for role in roles if role]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            matching_names = UserRole.objects.filter(role=value).values_list('full_name', flat=True)
+            return queryset.filter(name__in=matching_names)
+        return queryset
+    
 
 @admin.register(ControlLog)
 class ControlLogAdmin(BaseCacheAdmin):
-    list_display = ('id', 'name', 'face_id','similarity', 'face_id_status', 'formatted_time', 'image_comparison')
+    list_display = (
+        'id', 'name', 'face_id', 'similarity',
+        'face_id_status', 'role_from_userrole', 'formatted_time', 'image_comparison'
+    )
     search_fields = ('name', 'face_id', 'uid', 'id')
-    list_filter = ('time', 'face_id')
+    list_filter = ('time', 'face_id', RoleFromUserRoleFilter)
     list_per_page = 100
     ordering = ('-time',)
     time_field = "time"
 
+    def role_from_userrole(self, obj):
+        try:
+            userrole = UserRole.objects.filter(passport=obj.name).first()
+            return userrole.role if userrole else "—"
+        except:
+            return "—"
+    role_from_userrole.short_description = "Role"
+
+    def get_role_filter(self, request, queryset):
+        roles = UserRole.objects.values_list('role', flat=True).distinct()
+        return [(r, r) for r in roles if r]
+    get_role_filter.title = "Role"
+
+    def role_from_userrole_filter(self, request, queryset):
+        roles = UserRole.objects.values_list('role', flat=True).distinct()
+        return [(role, role) for role in roles if role]
+    
     def get_queryset(self, request):
-        cache_key = "controllog_admin_queryset_last20days"
+        cache_key = "controllog_admin_queryset_last90days"
         cached_qs = cache.get(cache_key)
-        if cached_qs is not None:
+        if cached_qs:
             return cached_qs
 
         cutoff_date = timezone.now() - datetime.timedelta(days=90)
@@ -143,6 +183,7 @@ class ControlLogAdmin(BaseCacheAdmin):
     def formatted_time(self, obj):
         # Timezone bilan birga, 24-soatlik formatda ko'rsatadi
         return timezone.localtime(obj.time).strftime("%Y-%m-%d %H:%M:%S")
+    
     formatted_time.short_description = "Time"
     formatted_time.admin_order_field = "time"
 
@@ -160,42 +201,53 @@ class ControlLogAdmin(BaseCacheAdmin):
     def image_comparison(self, obj):
         def shrink_img_with_link(url):
             return format_html(
-                '<a href="{}" target="_blank">'
+                '<a href="{}" target="_blank" style="display:inline-block;margin-right:5px;">'
                 '<img src="{}" loading="lazy" width="80" height="80" '
-                'style="object-fit:cover;border-radius:5px;filter: blur(0.3px);image-rendering: -webkit-optimize-contrast;" />'
+                'style="object-fit:cover;border-radius:5px;image-rendering:-webkit-optimize-contrast;" />'
                 '</a>',
                 url, url
             )
 
-        empty_user = '<div style="width:50px;height:50px;background:#eee;border-radius:5px;line-height:50px;text-align:center;color:#777;font-size:10px;display:inline-block;">Empty</div>'
-        empty_log = '<div style="width:50px;height:50px;background:#fdd;border-radius:5px;line-height:50px;text-align:center;color:#900;font-size:10px;font-weight:bold;margin-left:5px;display:inline-block;">Empty</div>'
+        empty = format_html(
+            '<div style="display:inline-block;width:80px;height:80px;background:#eee;border-radius:5px;line-height:80px;'
+            'text-align:center;color:#777;font-size:10px;margin-right:5px;">Empty</div>'
+        )
 
-        # 👤 User rasmi
         try:
-            user = UsersManagement.objects.only("image").filter(name=obj.name).first()
-            if user and user.image and user.image.name:
+            user = UsersManagement.objects.filter(name=obj.name).first()
+            if user and user.image and user.image.url:
                 user_img = shrink_img_with_link(user.image.url)
             else:
-                user_img = None
-        except Exception as e:
-            print(f"[image_comparison] User image error for '{obj.name}': {e}")
-            user_img = empty_user
+                user_img = empty
+        except:
+            user_img = empty
 
-        # 📷 Log rasmi — fayl mavjudligini tekshiramiz
         try:
-            if obj.image and obj.image.name:
-                image_path = obj.image.path
-                if os.path.exists(image_path):
-                    log_img = shrink_img_with_link(obj.image.url)
-                else:
-                    log_img = None
+            if obj.image and obj.image.url:
+                log_img = shrink_img_with_link(obj.image.url)
             else:
-                log_img = empty_log
-        except Exception as e:
-            print(f"[image_comparison] Log image error for ControlLog ID {obj.id}: {e}")
-            log_img = empty_log
+                log_img = empty
+        except:
+            log_img = empty
 
-        return format_html('{} {}', user_img, log_img)
+        # ⬅️ Bu yerda inline-flex yordamida yonma-yon joylashtiryapmiz
+        return format_html(
+            '<div style="display:inline-flex; align-items:center;">{} {}</div>',
+            user_img, log_img
+        )
+
+
+
+
+
+@admin.register(UserRole)
+class UserRoleAdmin(BaseCacheAdmin):
+    list_display = ('id', 'full_name','role', 'hemis_id','passport')
+    search_fields = ('full_name', 'hemis_id', 'passport', 'id')
+    # list_filter = ('time', 'face_id')
+    list_per_page = 100
+    ordering = ('-created_at',)
+    time_field = "created_at"
 
 
 

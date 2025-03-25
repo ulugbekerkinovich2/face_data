@@ -182,7 +182,11 @@ class StrangerCaptureLog(models.Model):
         if isinstance(self.time, str) and "/" in self.time:
             self.time = datetime.strptime(self.time, "%Y-%m-%d/%H:%M:%S")
         super(StrangerCaptureLog, self).save(*args, **kwargs)
-
+    @property
+    def custom_image_url(self):
+        if self.image:
+            return f"https://face-admin.misterdev.uz/{self.image.url}"
+        return None
 
 class ControlLog(models.Model):
     face_id = models.IntegerField(null=True, blank=True)
@@ -246,3 +250,15 @@ def send_image_after_controllog_save(sender, instance, created, **kwargs):
         threading.Thread(target=async_send).start()
 
 
+class UserRole(models.Model):
+    hemis_id = models.BigIntegerField()
+    full_name = models.TextField()
+    passport = models.TextField()
+    role = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.role}"
+    class Meta:
+        verbose_name_plural = "User Roles"
+        verbose_name = "User Role"
