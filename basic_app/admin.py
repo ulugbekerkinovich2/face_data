@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib import admin
 from django.core.cache import cache
+from django.conf import settings
 import datetime
 from .models import (ControlLog, Heartbeat, ICCardInfoPush, StrangerCapture, UserRole,
     UsersManagement, VerifyPush)
@@ -64,6 +65,7 @@ class VerifyPushAdmin(BaseCacheAdmin):
 
 @admin.register(StrangerCapture)
 class StrangerCaptureAdmin(BaseCacheAdmin):
+    
     list_display = (
         'device_id', 'movement', 'create_time', 'thumbnail',
     )
@@ -74,13 +76,15 @@ class StrangerCaptureAdmin(BaseCacheAdmin):
 
     def thumbnail(self, obj):
         if obj.image_file:
-            original_url = obj.image_file.url
-            custom_url = original_url.replace("http://face-admin.misterdev.uz", "https://face-id.misterdev.uz")
+            # Mahalliy MEDIA_URL ni domen bilan almashtiramiz
+            relative_url = obj.image_file.url  # misol: /media/uploads/image.jpg
+            custom_url = relative_url.replace(
+                settings.MEDIA_URL, "https://face-id.misterdev.uz/media/"
+            )
             return format_html(
                 '<img src="{}" style="height: 120px; width: 120px; object-fit: cover; border-radius: 10px;" />',
                 custom_url
             )
-
         return "No Image"
 
     thumbnail.short_description = "Image Preview"
