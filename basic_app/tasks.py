@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from basic_app.models import ControlLog
 import time
 import os
-import paramiko
+# import paramiko
 import logging
 from dotenv import load_dotenv
 from celery import shared_task
@@ -273,31 +273,38 @@ def fetch_and_store_control_logs():
         'ID_2489012': '192.168.15.46',
         'ID_2489019': '192.168.15.53'
     }
+    def get_last_run_time(filepath):
+        """
+        Fayldan oxirgi vaqtni o‘qib beradi. Agar fayl mavjud bo‘lmasa, hozirgi vaqt qaytariladi.
+        """
+        if filepath.exists():
+            with open(filepath, "r") as f:
+                return datetime.fromisoformat(f.read().strip())
+        return timezone.now()
+
+    def save_current_time(filepath, time):
+        """
+        Berilgan vaqtni faylga yozadi (iso formatda).
+        """
+        with open(filepath, "w") as f:
+            f.write(time.isoformat())
 
     reqcount = 5000
     LAST_RUN_FILE = Path('last_run.txt')
 
-    # ⏱️ Oldingi ishga tushgan vaqtni olish
-    if LAST_RUN_FILE.exists():
-        with open(LAST_RUN_FILE, 'r') as f:
-            last_run_str = f.read().strip()
-            begintime_dt = datetime.fromisoformat(last_run_str)
-            begintime_dt = timezone.make_aware(begintime_dt)
-    else:
-        # Fayl yo‘q bo‘lsa, bugun 00:00:00 dan boshlaymiz
-        today = timezone.localdate()
-        begintime_dt = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+    # Oxirgi ishga tushirilgan kunni olamiz (yoki bugun)
+    begintime_dt = get_last_run_time(LAST_RUN_FILE).date()
 
-    # 🔁 Hozirgi vaqtni olish
-    endtime_dt = timezone.now()
+    # 1 kun ortga qarab yuramiz
+    endtime_dt = datetime.combine(begintime_dt, datetime.min.time())
+    begintime_dt = endtime_dt - timedelta(days=1)
 
-    # 📝 Yangi vaqtni faylga saqlash
-    with open(LAST_RUN_FILE, 'w') as f:
-        f.write(endtime_dt.isoformat())
+    # Faylga keyingi bosqichda ishlatiladigan vaqtni yozamiz
+    save_current_time(LAST_RUN_FILE, begintime_dt)
 
-    # ✅ Formatlash
-    begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
-    endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+    # Formatlash
+    begintime = timezone.make_aware(begintime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+    endtime = timezone.make_aware(endtime_dt).strftime("%Y-%m-%d/%H:%M:%S")
 
     print("📌 Boshlanish:", begintime)
     print("📌 Tugash:", endtime)
