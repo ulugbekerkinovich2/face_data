@@ -21,7 +21,7 @@ class BaseCacheAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         model_name = self.model._meta.model_name
-        threshold_date = timezone.now() - datetime.timedelta(days=90)
+        threshold_date = timezone.now() - datetime.timedelta(days=8)
         cache_key = f"{self.cache_key_prefix}_{model_name}_{threshold_date.date().isoformat()}"
         qs = cache.get(cache_key)
         if qs is None:
@@ -50,7 +50,7 @@ class HeartbeatAdmin(BaseCacheAdmin):
 
 @admin.register(VerifyPush)
 class VerifyPushAdmin(BaseCacheAdmin):
-    list_display = ('person_id', 'device_id', 'movement', 'name', 'formatted_create_time')
+    list_display = ('person_id', 'device_id','similarity1', 'movement', 'name', 'formatted_create_time')
     search_fields = ('person_id', 'name', 'id_card', 'rfid_card')
     list_filter = ('create_time',)
     list_per_page = 25
