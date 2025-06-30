@@ -79,7 +79,7 @@ def upload_image(ip, file_path):
 
 
 def send_image_to_controllog(id: int, image_path: str):
-    url = "https://face-admin.misterdev.uz/update_image_controllog"
+    url = "https://face-id-admin.misterdev.uz/update_image_controllog"
     with open(image_path, 'rb') as img:
         files = {'image': img}
         data = {'id': id}
@@ -92,7 +92,7 @@ def send_image_to_controllog(id: int, image_path: str):
         print("❌ Xatolik:", e)
 
 def send_image_to_management(id: int, image_path: str):
-    url = "https://face-admin.misterdev.uz/update_image_management"
+    url = "https://face-id-admin.misterdev.uz/update_image_management"
     with open(image_path, 'rb') as img:
         files = {'image': img}
         data = {'id': id}

@@ -78,7 +78,7 @@ DATABASES = {
         'NAME': 'face_data',
         'USER': 'postgres',
         'PASSWORD': '998359015a@',
-        'HOST': '185.217.131.98',  
+        'HOST': '95.130.227.29',  
         'PORT': '5432',
     }
 }
