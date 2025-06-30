@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from basic_app.models import ControlLog
 import time
 import os
-import paramiko
+# import paramiko
 import logging
 from dotenv import load_dotenv
 from celery import shared_task
@@ -265,6 +265,7 @@ def fetch_and_store_control_logs():
     logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
 
     face_ids = {
+# <<<<<<< last_version
             # 'ID_2488986': '172.16.110.3',
             # 'ID_2488993': '172.16.110.8',
             # 'ID_2488999': '172.16.110.7',
@@ -275,10 +276,37 @@ def fetch_and_store_control_logs():
             'ID_2489019': '172.16.110.15'
         }
 
+# =======
+#         'ID_2488986': '192.168.15.20',
+#         'ID_2488993': '192.168.15.27',
+#         'ID_2488999': '192.168.15.33',
+#         'ID_2489002': '192.168.15.36',
+#         'ID_2489005': '192.168.15.39',
+#         'ID_2489007': '192.168.15.41',
+#         'ID_2489012': '192.168.15.46',
+#         'ID_2489019': '192.168.15.53'
+#     }
+#     def get_last_run_time(filepath):
+#         """
+#         Fayldan oxirgi vaqtni o‘qib beradi. Agar fayl mavjud bo‘lmasa, hozirgi vaqt qaytariladi.
+#         """
+#         if filepath.exists():
+#             with open(filepath, "r") as f:
+#                 return datetime.fromisoformat(f.read().strip())
+#         return timezone.now()
+
+#     def save_current_time(filepath, time):
+#         """
+#         Berilgan vaqtni faylga yozadi (iso formatda).
+#         """
+#         with open(filepath, "w") as f:
+#             f.write(time.isoformat())
+# >>>>>>> main
 
     reqcount = 5000
     LAST_RUN_FILE = Path('last_run.txt')
 
+# <<<<<<< last_version
     # ⏱️ Oldingi ishga tushgan vaqtni olish
     if LAST_RUN_FILE.exists():
         with open(LAST_RUN_FILE, 'r') as f:
@@ -301,6 +329,21 @@ def fetch_and_store_control_logs():
     # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
     endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+# =======
+#     # Oxirgi ishga tushirilgan kunni olamiz (yoki bugun)
+#     begintime_dt = get_last_run_time(LAST_RUN_FILE).date()
+
+#     # 1 kun ortga qarab yuramiz
+#     endtime_dt = datetime.combine(begintime_dt, datetime.min.time())
+#     begintime_dt = endtime_dt - timedelta(days=1)
+
+#     # Faylga keyingi bosqichda ishlatiladigan vaqtni yozamiz
+#     save_current_time(LAST_RUN_FILE, begintime_dt)
+
+#     # Formatlash
+#     begintime = timezone.make_aware(begintime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+#     endtime = timezone.make_aware(endtime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+# >>>>>>> main
 
     print("📌 Boshlanish:", begintime)
     print("📌 Tugash:", endtime)
