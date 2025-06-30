@@ -270,6 +270,7 @@ def handle_qr_code_push(request):
 #             return JsonResponse({"error": str(e)}, status=500)
 
 #     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 @csrf_exempt
 def handle_alarm_push(request):
     if request.method == "POST":

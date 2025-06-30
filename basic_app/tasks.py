@@ -32,7 +32,7 @@ from celery import shared_task
 load_dotenv()
 
 # Konfiguratsiya
-SERVER_HOST = os.getenv("SERVER_HOST", "185.217.131.98")
+SERVER_HOST = os.getenv("SERVER_HOST", "95.130.227.29")
 SERVER_USER = os.getenv("SERVER_USER", "root")
 SSH_KEY_PATH = os.path.expanduser("~/.ssh/id_rsa")
 REMOTE_MEDIA_PATH = "/var/www/workers/face_data_admin/media"
@@ -177,15 +177,16 @@ def get_list_management_task():
 
     try:
         face_ids = {
-            'ID_2488986': '192.168.15.20',
-            'ID_2488993': '192.168.15.27',
-            'ID_2488999': '192.168.15.33',
-            'ID_2489002': '192.168.15.36',
-            'ID_2489005': '192.168.15.39',
-            'ID_2489007': '192.168.15.41',
-            'ID_2489012': '192.168.15.46',
-            'ID_2489019': '192.168.15.53'
+            # 'ID_2488986': '172.16.110.3',
+            # 'ID_2488993': '172.16.110.8',
+            # 'ID_2488999': '172.16.110.7',
+            'ID_2489002': '172.16.110.18',
+            'ID_2489005': '172.16.110.23',
+            'ID_2489007': '172.16.110.14',
+            'ID_2489012': '172.16.110.21',
+            'ID_2489019': '172.16.110.15'
         }
+
 
         reqcount, begin_time = 100000, '2024-01-01/00:00:00' 
         end_time = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
@@ -264,47 +265,85 @@ def fetch_and_store_control_logs():
     logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
 
     face_ids = {
-        'ID_2488986': '192.168.15.20',
-        'ID_2488993': '192.168.15.27',
-        'ID_2488999': '192.168.15.33',
-        'ID_2489002': '192.168.15.36',
-        'ID_2489005': '192.168.15.39',
-        'ID_2489007': '192.168.15.41',
-        'ID_2489012': '192.168.15.46',
-        'ID_2489019': '192.168.15.53'
-    }
-    def get_last_run_time(filepath):
-        """
-        Fayldan oxirgi vaqtni o‘qib beradi. Agar fayl mavjud bo‘lmasa, hozirgi vaqt qaytariladi.
-        """
-        if filepath.exists():
-            with open(filepath, "r") as f:
-                return datetime.fromisoformat(f.read().strip())
-        return timezone.now()
+# <<<<<<< last_version
+            # 'ID_2488986': '172.16.110.3',
+            # 'ID_2488993': '172.16.110.8',
+            # 'ID_2488999': '172.16.110.7',
+            'ID_2489002': '172.16.110.18',
+            'ID_2489005': '172.16.110.23',
+            'ID_2489007': '172.16.110.14',
+            'ID_2489012': '172.16.110.21',
+            'ID_2489019': '172.16.110.15'
+        }
 
-    def save_current_time(filepath, time):
-        """
-        Berilgan vaqtni faylga yozadi (iso formatda).
-        """
-        with open(filepath, "w") as f:
-            f.write(time.isoformat())
+# =======
+#         'ID_2488986': '192.168.15.20',
+#         'ID_2488993': '192.168.15.27',
+#         'ID_2488999': '192.168.15.33',
+#         'ID_2489002': '192.168.15.36',
+#         'ID_2489005': '192.168.15.39',
+#         'ID_2489007': '192.168.15.41',
+#         'ID_2489012': '192.168.15.46',
+#         'ID_2489019': '192.168.15.53'
+#     }
+#     def get_last_run_time(filepath):
+#         """
+#         Fayldan oxirgi vaqtni o‘qib beradi. Agar fayl mavjud bo‘lmasa, hozirgi vaqt qaytariladi.
+#         """
+#         if filepath.exists():
+#             with open(filepath, "r") as f:
+#                 return datetime.fromisoformat(f.read().strip())
+#         return timezone.now()
+
+#     def save_current_time(filepath, time):
+#         """
+#         Berilgan vaqtni faylga yozadi (iso formatda).
+#         """
+#         with open(filepath, "w") as f:
+#             f.write(time.isoformat())
+# >>>>>>> main
 
     reqcount = 5000
     LAST_RUN_FILE = Path('last_run.txt')
 
-    # Oxirgi ishga tushirilgan kunni olamiz (yoki bugun)
-    begintime_dt = get_last_run_time(LAST_RUN_FILE).date()
+# <<<<<<< last_version
+    # ⏱️ Oldingi ishga tushgan vaqtni olish
+    if LAST_RUN_FILE.exists():
+        with open(LAST_RUN_FILE, 'r') as f:
+            last_run_str = f.read().strip()
+            begintime_dt = datetime.fromisoformat(last_run_str)
+            if begintime_dt.tzinfo is None:  # <-- faqat timezone yo‘q bo‘lsa
+                begintime_dt = timezone.make_aware(begintime_dt)
+    else:
+        today = timezone.localdate()
+        begintime_dt = timezone.make_aware(datetime.combine(today, datetime.min.time()))
 
-    # 1 kun ortga qarab yuramiz
-    endtime_dt = datetime.combine(begintime_dt, datetime.min.time())
-    begintime_dt = endtime_dt - timedelta(days=1)
 
-    # Faylga keyingi bosqichda ishlatiladigan vaqtni yozamiz
-    save_current_time(LAST_RUN_FILE, begintime_dt)
+    # 🔁 Hozirgi vaqtni olish
+    endtime_dt = timezone.now()
 
-    # Formatlash
-    begintime = timezone.make_aware(begintime_dt).strftime("%Y-%m-%d/%H:%M:%S")
-    endtime = timezone.make_aware(endtime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+    # 📝 Yangi vaqtni faylga saqlash
+    with open(LAST_RUN_FILE, 'w') as f:
+        f.write(endtime_dt.isoformat())
+
+    # ✅ Formatlash
+    begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+    endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
+# =======
+#     # Oxirgi ishga tushirilgan kunni olamiz (yoki bugun)
+#     begintime_dt = get_last_run_time(LAST_RUN_FILE).date()
+
+#     # 1 kun ortga qarab yuramiz
+#     endtime_dt = datetime.combine(begintime_dt, datetime.min.time())
+#     begintime_dt = endtime_dt - timedelta(days=1)
+
+#     # Faylga keyingi bosqichda ishlatiladigan vaqtni yozamiz
+#     save_current_time(LAST_RUN_FILE, begintime_dt)
+
+#     # Formatlash
+#     begintime = timezone.make_aware(begintime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+#     endtime = timezone.make_aware(endtime_dt).strftime("%Y-%m-%d/%H:%M:%S")
+# >>>>>>> main
 
     print("📌 Boshlanish:", begintime)
     print("📌 Tugash:", endtime)
