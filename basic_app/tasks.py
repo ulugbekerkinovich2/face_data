@@ -253,8 +253,13 @@ from basic_app.services.get_control_logs import fetch_all_control_data
 from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+from basic_app.management.commands.notify_bot import mt_send_group_message
+from conf.settings import USERS
 
+import redis
 
+# Redis ga ulanish
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 
 
@@ -265,7 +270,6 @@ def fetch_and_store_control_logs():
     logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
 
     face_ids = {
-# <<<<<<< last_version
             # 'ID_2488986': '172.16.110.3',
             # 'ID_2488993': '172.16.110.8',
             # 'ID_2488999': '172.16.110.7',
@@ -276,38 +280,9 @@ def fetch_and_store_control_logs():
             'ID_2489019': '172.16.110.15'
         }
 
-# =======
-#         'ID_2488986': '192.168.15.20',
-#         'ID_2488993': '192.168.15.27',
-#         'ID_2488999': '192.168.15.33',
-#         'ID_2489002': '192.168.15.36',
-#         'ID_2489005': '192.168.15.39',
-#         'ID_2489007': '192.168.15.41',
-#         'ID_2489012': '192.168.15.46',
-#         'ID_2489019': '192.168.15.53'
-#     }
-#     def get_last_run_time(filepath):
-#         """
-#         Fayldan oxirgi vaqtni o‘qib beradi. Agar fayl mavjud bo‘lmasa, hozirgi vaqt qaytariladi.
-#         """
-#         if filepath.exists():
-#             with open(filepath, "r") as f:
-#                 return datetime.fromisoformat(f.read().strip())
-#         return timezone.now()
-
-#     def save_current_time(filepath, time):
-#         """
-#         Berilgan vaqtni faylga yozadi (iso formatda).
-#         """
-#         with open(filepath, "w") as f:
-#             f.write(time.isoformat())
-# >>>>>>> main
-
-    reqcount = 5000
+    reqcount = 3000
     LAST_RUN_FILE = Path('last_run.txt')
 
-# <<<<<<< last_version
-    # ⏱️ Oldingi ishga tushgan vaqtni olish
     if LAST_RUN_FILE.exists():
         with open(LAST_RUN_FILE, 'r') as f:
             last_run_str = f.read().strip()
@@ -325,25 +300,11 @@ def fetch_and_store_control_logs():
     # 📝 Yangi vaqtni faylga saqlash
     with open(LAST_RUN_FILE, 'w') as f:
         f.write(endtime_dt.isoformat())
-
+    begintime_dt = begintime_dt + timedelta(hours=5)
+    endtime_dt = endtime_dt + timedelta(hours=5)
     # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
     endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
-# =======
-#     # Oxirgi ishga tushirilgan kunni olamiz (yoki bugun)
-#     begintime_dt = get_last_run_time(LAST_RUN_FILE).date()
-
-#     # 1 kun ortga qarab yuramiz
-#     endtime_dt = datetime.combine(begintime_dt, datetime.min.time())
-#     begintime_dt = endtime_dt - timedelta(days=1)
-
-#     # Faylga keyingi bosqichda ishlatiladigan vaqtni yozamiz
-#     save_current_time(LAST_RUN_FILE, begintime_dt)
-
-#     # Formatlash
-#     begintime = timezone.make_aware(begintime_dt).strftime("%Y-%m-%d/%H:%M:%S")
-#     endtime = timezone.make_aware(endtime_dt).strftime("%Y-%m-%d/%H:%M:%S")
-# >>>>>>> main
 
     print("📌 Boshlanish:", begintime)
     print("📌 Tugash:", endtime)
@@ -450,6 +411,22 @@ def fetch_and_store_control_logs():
                         logging.info(f"🔄 UPDATED — name='{name}', face_id={face_num}, time={log_time}")
                         skipped_count += 1
                         continue
+
+                    special_users = list(settings.USERS.keys())
+                    entered_doors = [2489019, 2489007, 2489005, 2488986]
+
+                    try:
+                        door_array_index = entered_doors.index(face_num)
+                    except ValueError:
+                        print(f"Eshik topilmadi: {face_num}")
+                        door_array_index = -1
+
+                    if door_array_index != -1:
+                        data = r.get(name)
+                        if not data:
+                            if name in special_users:
+                                mt_send_group_message(f"Name: {settings.USERS[name]} Entered\nDoor ID: {entered_doors[door_array_index]}\nTime: {log_time}")
+                                r.setex(name, 86400, door_array_index)
 
                     ControlLog.objects.create(
                         face_id=face_num,
