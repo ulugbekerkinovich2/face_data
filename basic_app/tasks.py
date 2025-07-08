@@ -27,7 +27,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from celery import shared_task
-
+import traceback
 # .env faylni yuklash (agar ishlatayotgan bo'lsangiz)
 load_dotenv()
 
@@ -460,8 +460,12 @@ def fetch_and_store_control_logs():
                     logging.info(f"✅ SAVED — name='{name}', face_id={face_num}, time={log_time}")
                     saved_count += 1
 
+                
+
                 except Exception as e:
-                    logging.error(f"❌ ERROR — name='{name}', face_id={face_num}, reason={e}")
+                    tb = traceback.format_exc()
+                    logging.error(f"❌ ERROR — name='{name}', face_id={face_num}, reason={e}\nTraceback:\n{tb}")
+
 
             logging.info(f"📦 DONE WITH {face_id}. TOTAL: {len(logs)}, SAVED: {saved_count}, SKIPPED: {skipped_count}")
 
