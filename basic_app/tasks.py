@@ -255,7 +255,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 from basic_app.management.commands.notify_bot import mt_send_group_message
 from conf.settings import USERS
-
+from datetime import timedelta
+from django.utils import timezone
 import redis
 
 # Redis ga ulanish
@@ -421,8 +422,7 @@ def fetch_and_store_control_logs():
                         print(f"Eshik topilmadi: {face_num}")
                         door_array_index = -1
                     # Faylning boshida:
-                    from datetime import timedelta
-                    from django.utils import timezone
+
 
                     # process_control_log ichida:
                     now = timezone.now()
