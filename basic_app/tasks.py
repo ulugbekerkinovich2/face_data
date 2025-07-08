@@ -420,22 +420,22 @@ def fetch_and_store_control_logs():
                     except ValueError:
                         print(f"Eshik topilmadi: {face_num}")
                         door_array_index = -1
-                    from datetime import datetime, timedelta
+                    # Faylning boshida:
+                    from datetime import timedelta
+                    from django.utils import timezone
 
-                    now = datetime.now()
-
-                    # Ertangi kun 00:00
+                    # process_control_log ichida:
+                    now = timezone.now()
                     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-
-                    # Qolgan sekundlar
                     seconds_left = int((tomorrow - now).total_seconds())
+
                     if door_array_index != -1:
                         data = r.get(name)
                         if not data:
                             if name in special_users:
-                                mt_send_group_message(f"Name: {settings.USERS[name]} Entered\nDoor ID: {entered_doors[door_array_index]}\nTime: {log_time}")
-
+                                mt_send_group_message(...)
                                 r.setex(name, seconds_left, door_array_index)
+
 
 
 
