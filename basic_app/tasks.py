@@ -427,6 +427,7 @@ def fetch_and_store_control_logs():
                             if name in special_users:
                                 mt_send_group_message(f"Name: {settings.USERS[name]} Entered\nDoor ID: {entered_doors[door_array_index]}\nTime: {log_time}")
                                 r.setex(name, 86400, door_array_index)
+                                
 
                     ControlLog.objects.create(
                         face_id=face_num,
