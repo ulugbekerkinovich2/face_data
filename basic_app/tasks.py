@@ -174,7 +174,6 @@ def process_user(k, ip, face_id_):
 @shared_task
 def get_list_management_task():
     logging.info("🚀 Celery Task Started: Fetching user lists and storing in the database.")
-
     try:
         face_ids = {
             # 'ID_2488986': '172.16.110.3',
