@@ -300,8 +300,8 @@ def fetch_and_store_control_logs():
     # 📝 Yangi vaqtni faylga saqlash
     with open(LAST_RUN_FILE, 'w') as f:
         f.write(endtime_dt.isoformat())
-    # begintime_dt = begintime_dt + timedelta(hours=5)
-    # endtime_dt = endtime_dt + timedelta(hours=5)
+    begintime_dt = begintime_dt + timedelta(hours=5)
+    endtime_dt = endtime_dt + timedelta(hours=5)
     # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
     endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
