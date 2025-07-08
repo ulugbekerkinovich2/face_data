@@ -438,9 +438,6 @@ def fetch_and_store_control_logs():
                                 r.setex(name, seconds_left, door_array_index)
 
 
-                                r.setex(name, 86400, door_array_index)
-                                
-
                     ControlLog.objects.create(
                         face_id=face_num,
                         uid=int(log_data.get("uid", 0)),
