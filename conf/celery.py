@@ -26,7 +26,7 @@ app.conf.beat_schedule = {
     # },
     'get-control-logs': {
         'task': 'basic_app.tasks.fetch_and_store_control_logs',
-        'schedule': crontab(minute='*/5'),
+        'schedule': crontab(minute='*/1'),
     },
     # 'upload-and-delete-media-every-10-minutes': {
     #     'task': 'basic_app.tasks.upload_then_delete_media_via_sftp',  # Rsync versiyasi
