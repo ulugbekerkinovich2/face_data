@@ -185,7 +185,7 @@ class StrangerCaptureLog(models.Model):
     @property
     def custom_image_url(self):
         if self.image:
-            return f"https://face-admin.misterdev.uz/{self.image.url}"
+            return f"https://face-id-admin.misterdev.uz/{self.image.url}"
         return None
 
 class ControlLog(models.Model):

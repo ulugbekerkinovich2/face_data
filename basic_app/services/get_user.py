@@ -69,8 +69,8 @@ def get_user(ip, search_name):
         print(f"❌ Unexpected error: {e}")
         return {"error": "Unexpected error", "details": str(e)}
 
-a = get_user(
-    ip="192.168.15.20",
-    search_name="Ulugbek"
-)
-ic(a)
+# a = get_user(
+#     ip="192.168.15.20",
+#     search_name="Ulugbek"
+# )
+# ic(a)

@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from basic_app.models import ControlLog
 import time
 import os
-import paramiko
+# import paramiko
 import logging
 from dotenv import load_dotenv
 from celery import shared_task
@@ -32,7 +32,7 @@ from celery import shared_task
 load_dotenv()
 
 # Konfiguratsiya
-SERVER_HOST = os.getenv("SERVER_HOST", "185.217.131.98")
+SERVER_HOST = os.getenv("SERVER_HOST", "95.130.227.29")
 SERVER_USER = os.getenv("SERVER_USER", "root")
 SSH_KEY_PATH = os.path.expanduser("~/.ssh/id_rsa")
 REMOTE_MEDIA_PATH = "/var/www/workers/face_data_admin/media"
@@ -177,15 +177,16 @@ def get_list_management_task():
 
     try:
         face_ids = {
-            'ID_2488986': '192.168.15.20',
-            'ID_2488993': '192.168.15.27',
-            'ID_2488999': '192.168.15.33',
-            'ID_2489002': '192.168.15.36',
-            'ID_2489005': '192.168.15.39',
-            'ID_2489007': '192.168.15.41',
-            'ID_2489012': '192.168.15.46',
-            'ID_2489019': '192.168.15.53'
+            # 'ID_2488986': '172.16.110.3',
+            # 'ID_2488993': '172.16.110.8',
+            # 'ID_2488999': '172.16.110.7',
+            'ID_2489002': '172.16.110.18',
+            'ID_2489005': '172.16.110.23',
+            'ID_2489007': '172.16.110.14',
+            'ID_2489012': '172.16.110.21',
+            'ID_2489019': '172.16.110.15'
         }
+
 
         reqcount, begin_time = 100000, '2024-01-01/00:00:00' 
         end_time = datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
@@ -252,8 +253,13 @@ from basic_app.services.get_control_logs import fetch_all_control_data
 from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+from basic_app.management.commands.notify_bot import mt_send_group_message
+from conf.settings import USERS
 
+import redis
 
+# Redis ga ulanish
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 
 
@@ -264,29 +270,29 @@ def fetch_and_store_control_logs():
     logging.info("🚀 Celery Task Started: Fetching full control logs and storing in the database.")
 
     face_ids = {
-        'ID_2488986': '192.168.15.20',
-        'ID_2488993': '192.168.15.27',
-        'ID_2488999': '192.168.15.33',
-        'ID_2489002': '192.168.15.36',
-        'ID_2489005': '192.168.15.39',
-        'ID_2489007': '192.168.15.41',
-        'ID_2489012': '192.168.15.46',
-        'ID_2489019': '192.168.15.53'
-    }
+            # 'ID_2488986': '172.16.110.3',
+            # 'ID_2488993': '172.16.110.8',
+            # 'ID_2488999': '172.16.110.7',
+            'ID_2489002': '172.16.110.18',
+            'ID_2489005': '172.16.110.23',
+            'ID_2489007': '172.16.110.14',
+            'ID_2489012': '172.16.110.21',
+            'ID_2489019': '172.16.110.15'
+        }
 
-    reqcount = 5000
+    reqcount = 3000
     LAST_RUN_FILE = Path('last_run.txt')
 
-    # ⏱️ Oldingi ishga tushgan vaqtni olish
     if LAST_RUN_FILE.exists():
         with open(LAST_RUN_FILE, 'r') as f:
             last_run_str = f.read().strip()
             begintime_dt = datetime.fromisoformat(last_run_str)
-            begintime_dt = timezone.make_aware(begintime_dt)
+            if begintime_dt.tzinfo is None:  # <-- faqat timezone yo‘q bo‘lsa
+                begintime_dt = timezone.make_aware(begintime_dt)
     else:
-        # Fayl yo‘q bo‘lsa, bugun 00:00:00 dan boshlaymiz
         today = timezone.localdate()
         begintime_dt = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+
 
     # 🔁 Hozirgi vaqtni olish
     endtime_dt = timezone.now()
@@ -294,7 +300,8 @@ def fetch_and_store_control_logs():
     # 📝 Yangi vaqtni faylga saqlash
     with open(LAST_RUN_FILE, 'w') as f:
         f.write(endtime_dt.isoformat())
-
+   # begintime_dt = begintime_dt + timedelta(hours=5)
+    endtime_dt = endtime_dt + timedelta(hours=5)
     # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
     endtime = endtime_dt.strftime("%Y-%m-%d/%H:%M:%S")
@@ -404,6 +411,32 @@ def fetch_and_store_control_logs():
                         logging.info(f"🔄 UPDATED — name='{name}', face_id={face_num}, time={log_time}")
                         skipped_count += 1
                         continue
+
+                    special_users = list(settings.USERS.keys())
+                    entered_doors = [2489019, 2489007, 2489005, 2488986]
+
+                    try:
+                        door_array_index = entered_doors.index(face_num)
+                    except ValueError:
+                        print(f"Eshik topilmadi: {face_num}")
+                        door_array_index = -1
+                    from datetime import datetime, timedelta
+
+                    now = datetime.now()
+
+                    # Ertangi kun 00:00
+                    tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+                    # Qolgan sekundlar
+                    seconds_left = int((tomorrow - now).total_seconds())
+                    if door_array_index != -1:
+                        data = r.get(name)
+                        if not data:
+                            if name in special_users:
+                                mt_send_group_message(f"Name: {settings.USERS[name]} Entered\nDoor ID: {entered_doors[door_array_index]}\nTime: {log_time}")
+
+                                r.setex(name, seconds_left, door_array_index)
+
 
                     ControlLog.objects.create(
                         face_id=face_num,

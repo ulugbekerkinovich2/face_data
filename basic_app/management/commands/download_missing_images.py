@@ -22,7 +22,7 @@ def ensure_image_downloaded(field_file, base_url=None):
     if base_url:
         url = f"{base_url.rstrip('/')}/{safe_file_name}"
     else:
-        url = f"http://face-admin.misterdev.uz/media/{safe_file_name}"
+        url = f"http://face-id-admin.misterdev.uz/media/{safe_file_name}"
 
     try:
         print(f"📥 Downloading: {url}")
@@ -40,7 +40,7 @@ class Command(BaseCommand):
     help = 'Download missing images from media server for all models'
 
     def handle(self, *args, **options):
-        base_url = "http://face-admin.misterdev.uz/media"
+        base_url = "http://face-id-admin.misterdev.uz/media"
 
         models_to_process = [
             (ControlLog, 'image'),

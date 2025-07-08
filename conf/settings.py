@@ -78,7 +78,7 @@ DATABASES = {
         'NAME': 'face_data',
         'USER': 'postgres',
         'PASSWORD': '998359015a@',
-        'HOST': '185.217.131.98',  
+        'HOST': '95.130.227.29',  
         'PORT': '5432',
     }
 }
@@ -206,3 +206,17 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CONN_MAX_AGE = 60
+MENTALABA_ARRIVAL_GROUP_CHAT_ID=-1002857703843
+BOT_TOKEN="7850408357:AAFZ8s4Hqjso5XclrAh6xkblW5sOO9O-X9w"
+
+USERS = {
+    "AB9666486": "Ulug'bek",
+    "AD3689793": "Elchin",
+    "AD4018303": "Ehson",
+    "AB5819512": "Muhriddin",
+    "AC2505571": "Farzona",
+    "AC0072003": "Sirojiddin",
+    "AC2558243": "Muhammadjon",
+    "AC2859833": "Mirakbar",
+    "AD2432758": "Nodir",
+}
