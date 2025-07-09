@@ -224,6 +224,32 @@ from django.conf import settings
 from django.db.models.signals import post_save
 
 
+# @receiver(post_save, sender=ControlLog)
+# def send_image_after_controllog_save(sender, instance, created, **kwargs):
+#     if instance.image:
+#         def async_send():
+#             try:
+#                 image_path = instance.image.path
+
+#                 # ✅ Fayl allaqachon mavjudligini tekshiramiz
+#                 if not os.path.exists(image_path):
+#                     logging.warning(f"⚠️ Rasm topilmadi: {image_path}")
+#                     return
+
+#                 # ⚠️ Faylni media/controllog ichida borligini tekshirish
+#                 relative_path = os.path.relpath(image_path, settings.MEDIA_ROOT)
+#                 if relative_path.startswith("controllog/") and os.path.exists(image_path):
+#                     logging.info(f"🚫 Rasm allaqachon mavjud, yuborilmaydi: {image_path}")
+#                     return
+                
+#                 send_image_to_controllog(instance.id, image_path)
+#                 logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}, created={created}")
+#             except Exception as e:
+#                 logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
+
+#         threading.Thread(target=async_send).start()
+from django_redis import get_redis_connection
+
 @receiver(post_save, sender=ControlLog)
 def send_image_after_controllog_save(sender, instance, created, **kwargs):
     if instance.image:
@@ -231,19 +257,24 @@ def send_image_after_controllog_save(sender, instance, created, **kwargs):
             try:
                 image_path = instance.image.path
 
-                # ✅ Fayl allaqachon mavjudligini tekshiramiz
                 if not os.path.exists(image_path):
                     logging.warning(f"⚠️ Rasm topilmadi: {image_path}")
                     return
 
-                # ⚠️ Faylni media/controllog ichida borligini tekshirish
-                relative_path = os.path.relpath(image_path, settings.MEDIA_ROOT)
-                if relative_path.startswith("controllog/") and os.path.exists(image_path):
-                    logging.info(f"🚫 Rasm allaqachon mavjud, yuborilmaydi: {image_path}")
+                # 🔑 Redis orqali double-send blokirovka
+                r = get_redis_connection("default")
+                redis_key = f"controllog:image_sent:{instance.id}"
+
+                if r.get(redis_key):
+                    logging.info(f"🚫 Redis: Rasm allaqachon yuborilgan. ID={instance.id}")
                     return
 
                 send_image_to_controllog(instance.id, image_path)
                 logging.info(f"📤 ControlLog rasmi yuborildi: ID={instance.id}, created={created}")
+
+                # Redis flag: TTL 1 kun (86400 sekund)
+                r.setex(redis_key, 86400, "1")
+
             except Exception as e:
                 logging.error(f"❌ ControlLog rasmi yuborishda xatolik (ID={instance.id}): {e}")
 
