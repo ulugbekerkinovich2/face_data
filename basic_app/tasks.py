@@ -419,7 +419,7 @@ def fetch_and_store_control_logs():
                     try:
                         door_array_index = entered_doors.index(face_num)
                     except ValueError:
-                        print(f"Eshik topilmadi: {face_num}")
+                        # print(f"Eshik topilmadi: {face_num}")
                         door_array_index = -1
 
 
