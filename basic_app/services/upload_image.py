@@ -79,7 +79,7 @@ def upload_image(ip, file_path):
 
 
 def send_image_to_controllog(id: int, image_path: str):
-    url = "https://face-id-admin.misterdev.uz/update_image_controllog"
+    url = "http://127.0.0.1:8189/update_image_controllog"
     with open(image_path, 'rb') as img:
         files = {'image': img}
         data = {'id': id}
