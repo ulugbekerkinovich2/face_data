@@ -27,7 +27,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from celery import shared_task
-
+import traceback
 # .env faylni yuklash (agar ishlatayotgan bo'lsangiz)
 load_dotenv()
 
@@ -174,7 +174,6 @@ def process_user(k, ip, face_id_):
 @shared_task
 def get_list_management_task():
     logging.info("🚀 Celery Task Started: Fetching user lists and storing in the database.")
-
     try:
         face_ids = {
             # 'ID_2488986': '172.16.110.3',
@@ -255,7 +254,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 from basic_app.management.commands.notify_bot import mt_send_group_message
 from conf.settings import USERS
-
+from datetime import timedelta
+from django.utils import timezone
 import redis
 
 # Redis ga ulanish
@@ -301,6 +301,7 @@ def fetch_and_store_control_logs():
     with open(LAST_RUN_FILE, 'w') as f:
         f.write(endtime_dt.isoformat())
    # begintime_dt = begintime_dt + timedelta(hours=5)
+
     endtime_dt = endtime_dt + timedelta(hours=5)
     # ✅ Formatlash
     begintime = begintime_dt.strftime("%Y-%m-%d/%H:%M:%S")
@@ -420,22 +421,22 @@ def fetch_and_store_control_logs():
                     except ValueError:
                         print(f"Eshik topilmadi: {face_num}")
                         door_array_index = -1
-                    from datetime import datetime, timedelta
+                    # Faylning boshida:
 
-                    now = datetime.now()
 
-                    # Ertangi kun 00:00
+                    # process_control_log ichida:
+                    now = timezone.now()
                     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-
-                    # Qolgan sekundlar
                     seconds_left = int((tomorrow - now).total_seconds())
+
                     if door_array_index != -1:
                         data = r.get(name)
                         if not data:
                             if name in special_users:
-                                mt_send_group_message(f"Name: {settings.USERS[name]} Entered\nDoor ID: {entered_doors[door_array_index]}\nTime: {log_time}")
-
+                                mt_send_group_message(f"Name {settings.USERS[name]} entered\nTime: {log_time}\nFace ID: {face_num}")
                                 r.setex(name, seconds_left, door_array_index)
+
+
 
 
                     ControlLog.objects.create(
@@ -459,8 +460,12 @@ def fetch_and_store_control_logs():
                     logging.info(f"✅ SAVED — name='{name}', face_id={face_num}, time={log_time}")
                     saved_count += 1
 
+                
+
                 except Exception as e:
-                    logging.error(f"❌ ERROR — name='{name}', face_id={face_num}, reason={e}")
+                    tb = traceback.format_exc()
+                    logging.error(f"❌ ERROR — name='{name}', face_id={face_num}, reason={e}\nTraceback:\n{tb}")
+
 
             logging.info(f"📦 DONE WITH {face_id}. TOTAL: {len(logs)}, SAVED: {saved_count}, SKIPPED: {skipped_count}")
 
