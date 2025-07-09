@@ -421,10 +421,8 @@ def fetch_and_store_control_logs():
                     except ValueError:
                         print(f"Eshik topilmadi: {face_num}")
                         door_array_index = -1
-                    # Faylning boshida:
 
 
-                    # process_control_log ichida:
                     now = timezone.now()
                     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
                     seconds_left = int((tomorrow - now).total_seconds())
@@ -435,8 +433,6 @@ def fetch_and_store_control_logs():
                             if name in special_users:
                                 mt_send_group_message(f"Name {settings.USERS[name]} entered\nTime: {log_time}\nFace ID: {face_num}")
                                 r.setex(name, seconds_left, door_array_index)
-
-
 
 
                     ControlLog.objects.create(
